@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Personalizações da barra de rolagem (opcional, baseado no seu código) */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollbar-thumb-slate-200::-webkit-scrollbar-thumb {
+  background-color: #e2e8f0;
+  border-radius: 3px;
+}

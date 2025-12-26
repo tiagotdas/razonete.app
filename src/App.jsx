@@ -129,7 +129,8 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm hover:shadow-md border border-slate-200 p-4 flex flex-col gap-3 min-w-[320px] transition-all duration-200 relative group">
+    // ALTERAÇÃO AQUI: Removido 'min-w-[320px]' e adicionado 'w-full' para respeitar o grid pai
+    <div className="bg-white rounded-xl shadow-sm hover:shadow-md border border-slate-200 p-4 flex flex-col gap-3 w-full transition-all duration-200 relative group">
       {/* Cabeçalho do Card */}
       <div className="relative pr-8"> 
         <input 
@@ -139,7 +140,6 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest }) => {
           className="text-lg font-bold text-slate-800 w-full border-b border-transparent focus:border-blue-500 outline-none placeholder-slate-400 bg-transparent"
           placeholder="Nome da Conta"
         />
-        {/* CORREÇÃO: Z-Index adicionado e cor escurecida para garantir clique */}
         <button 
           type="button"
           onClick={() => onDeleteRequest(data.id)}
@@ -225,8 +225,8 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest }) => {
 // --- Componente Principal App ---
 const App = () => {
   const [razonetes, setRazonetes] = useState([]);
-  
-  // Estado Unificado para Confirmações (Exclusão única ou total)
+   
+  // Estado Unificado para Confirmações
   const [confirmModal, setConfirmModal] = useState({ 
     isOpen: false, 
     type: null, // 'SINGLE' | 'ALL'
@@ -290,17 +290,14 @@ const App = () => {
     setRazonetes(razonetes.map(r => r.id === updatedRazonete.id ? updatedRazonete : r));
   };
 
-  // Solicita a exclusão (abre o modal)
   const requestDelete = (id) => {
     setConfirmModal({ isOpen: true, type: 'SINGLE', targetId: id });
   };
 
-  // Solicita limpeza total
   const requestClearAll = () => {
     setConfirmModal({ isOpen: true, type: 'ALL', targetId: null });
   };
 
-  // Executa a ação confirmada
   const confirmAction = () => {
     if (confirmModal.type === 'SINGLE' && confirmModal.targetId) {
       setRazonetes(razonetes.filter(r => r.id !== confirmModal.targetId));
@@ -381,7 +378,8 @@ const App = () => {
             <p className="text-slate-400">Comece adicionando o seu primeiro razonete.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 items-start">
+          /* ALTERAÇÃO AQUI: Grid inteligente usando auto-fill e minmax para evitar sobreposição */
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-6 items-start">
             {razonetes.map(razonete => (
               <RazoneteCard 
                 key={razonete.id} 

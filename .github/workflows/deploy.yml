@@ -1,0 +1,57 @@
+name: Deploy Razonetes to Pages
+
+on:
+  # Roda quando há um push na branch main
+  push:
+    branches: ["main"]
+
+  # Permite rodar manualmente na aba Actions se necessário
+  workflow_dispatch:
+
+# Permissões necessárias para o GITHUB_TOKEN
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Permite apenas um deploy por vez
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  # Etapa de Build (Compilação)
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar Dependências
+        # Usamos 'npm install' pois não temos o package-lock.json ainda
+        run: npm install
+
+      - name: Compilar o Projeto (Build)
+        run: npm run build
+
+      - name: Upload do artefato para o Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  # Etapa de Deploy (Publicação)
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Publicar no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

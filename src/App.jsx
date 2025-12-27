@@ -9,8 +9,9 @@ import {
   X,
   ClipboardList,
   Globe,
-  Archive,        // Novo ícone para arquivar
-  ArchiveRestore  // Novo ícone para desarquivar
+  Archive,
+  ArchiveRestore,
+  FileSpreadsheet // Novo ícone importado para o botão de Excel
 } from 'lucide-react';
 
 // --- Dicionário de Traduções (I18n) ---
@@ -64,7 +65,8 @@ const TRANSLATIONS = {
     unarchive: 'Desarquivar',
     showArchived: 'Ver Arquivados',
     showActive: 'Ver Ativos',
-    archivedView: 'Modo Arquivo'
+    archivedView: 'Modo Arquivo',
+    exportExcel: 'Exportar Excel' // Nova tradução
   },
   en: {
     debit: 'Debit',
@@ -115,7 +117,8 @@ const TRANSLATIONS = {
     unarchive: 'Unarchive',
     showArchived: 'Show Archived',
     showActive: 'Show Active',
-    archivedView: 'Archive Mode'
+    archivedView: 'Archive Mode',
+    exportExcel: 'Export to Excel' // Nova tradução
   },
   es: {
     debit: 'Débito',
@@ -166,7 +169,8 @@ const TRANSLATIONS = {
     unarchive: 'Desarchivar',
     showArchived: 'Ver Archivados',
     showActive: 'Ver Activos',
-    archivedView: 'Modo Archivo'
+    archivedView: 'Modo Archivo',
+    exportExcel: 'Exportar a Excel' // Nova tradução
   }
 };
 
@@ -448,6 +452,28 @@ const TrialBalanceModal = ({ isOpen, onClose, razonetes, lang, t }) => {
 
   const isBalanced = Math.abs(totals.debit - totals.credit) < 0.01;
 
+  // Função para exportar Balancete para Excel (CSV)
+  const exportToExcel = () => {
+    let csv = "data:text/csv;charset=utf-8,\uFEFF"; // BOM para suporte a acentos
+    // Cabeçalho
+    csv += `${t.tableAccounts};${t.tableDebit};${t.tableCredit}\n`;
+    
+    // Dados
+    reportData.forEach(row => {
+        const debit = row.debitBalance > 0 ? row.debitBalance.toFixed(2).replace('.', ',') : '0,00';
+        const credit = row.creditBalance > 0 ? row.creditBalance.toFixed(2).replace('.', ',') : '0,00';
+        csv += `"${row.title}";${debit};${credit}\n`;
+    });
+
+    // Totais
+    csv += `${t.totals};${totals.debit.toFixed(2).replace('.', ',')};${totals.credit.toFixed(2).replace('.', ',')}\n`;
+
+    const link = document.createElement("a");
+    link.href = encodeURI(csv);
+    link.download = `balancete_${new Date().toISOString().slice(0,10)}.csv`;
+    link.click();
+  };
+
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[70] p-4 animate-in fade-in duration-200">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
@@ -527,7 +553,16 @@ const TrialBalanceModal = ({ isOpen, onClose, razonetes, lang, t }) => {
         </div>
 
         {/* Footer do Modal */}
-        <div className="p-4 border-t border-slate-200 bg-slate-50 flex justify-end">
+        <div className="p-4 border-t border-slate-200 bg-slate-50 flex justify-end gap-2">
+          {/* BOTÃO DE EXPORTAR BALANCETE */}
+          <button 
+            onClick={exportToExcel}
+            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition shadow-sm active:scale-95"
+          >
+            <FileSpreadsheet size={16} />
+            {t.exportExcel}
+          </button>
+
           <button 
             onClick={onClose}
             className="px-6 py-2 bg-slate-800 text-white font-medium rounded-lg hover:bg-slate-700 transition"

@@ -8,7 +8,9 @@ import {
   AlertTriangle, 
   X,
   ClipboardList,
-  Globe // Novo ícone para o seletor de idiomas
+  Globe,
+  Archive,        // Novo ícone para arquivar
+  ArchiveRestore  // Novo ícone para desarquivar
 } from 'lucide-react';
 
 // --- Dicionário de Traduções (I18n) ---
@@ -34,15 +36,16 @@ const TRANSLATIONS = {
     export: 'Exportar',
     clearAll: 'Limpar Tudo',
     emptyWorkspace: 'Espaço de trabalho vazio',
+    emptyArchived: 'Nenhum razonete arquivado',
     startAdding: 'Comece adicionando o seu primeiro razonete.',
     confirmation: 'Confirmação',
-    confirmDeleteAll: 'Tem certeza que deseja apagar todos os razonetes? Todo o trabalho será perdido.',
+    confirmDeleteAll: 'Tem certeza que deseja apagar todos os razonetes visíveis? Todo o trabalho será perdido.',
     confirmDeleteOne: 'Tem certeza que deseja excluir este razonete permanentemente?',
     cancel: 'Cancelar',
     deleteAll: 'Apagar Tudo',
     delete: 'Excluir',
     trialBalanceTitle: 'Balancete de Verificação',
-    trialBalanceSubtitle: 'Resumo de saldos por conta',
+    trialBalanceSubtitle: 'Resumo de saldos por conta (Visíveis)',
     tableAccounts: 'Contas',
     tableDebit: 'Saldo Devedor',
     tableCredit: 'Saldo Credor',
@@ -56,7 +59,12 @@ const TRANSLATIONS = {
     type: 'Tipo',
     value: 'Valor',
     debtor: 'Devedora',
-    creditor: 'Credora'
+    creditor: 'Credora',
+    archive: 'Arquivar',
+    unarchive: 'Desarquivar',
+    showArchived: 'Ver Arquivados',
+    showActive: 'Ver Ativos',
+    archivedView: 'Modo Arquivo'
   },
   en: {
     debit: 'Debit',
@@ -79,15 +87,16 @@ const TRANSLATIONS = {
     export: 'Export',
     clearAll: 'Clear All',
     emptyWorkspace: 'Empty workspace',
+    emptyArchived: 'No archived accounts',
     startAdding: 'Start by adding your first T-account.',
     confirmation: 'Confirmation',
-    confirmDeleteAll: 'Are you sure you want to delete all accounts? All work will be lost.',
+    confirmDeleteAll: 'Are you sure you want to delete all visible accounts? All work will be lost.',
     confirmDeleteOne: 'Are you sure you want to delete this account permanently?',
     cancel: 'Cancel',
     deleteAll: 'Delete All',
     delete: 'Delete',
     trialBalanceTitle: 'Trial Balance',
-    trialBalanceSubtitle: 'Account balance summary',
+    trialBalanceSubtitle: 'Account balance summary (Visible)',
     tableAccounts: 'Accounts',
     tableDebit: 'Debit Balance',
     tableCredit: 'Credit Balance',
@@ -101,7 +110,12 @@ const TRANSLATIONS = {
     type: 'Type',
     value: 'Value',
     debtor: 'Debit',
-    creditor: 'Credit'
+    creditor: 'Credit',
+    archive: 'Archive',
+    unarchive: 'Unarchive',
+    showArchived: 'Show Archived',
+    showActive: 'Show Active',
+    archivedView: 'Archive Mode'
   },
   es: {
     debit: 'Débito',
@@ -124,15 +138,16 @@ const TRANSLATIONS = {
     export: 'Exportar',
     clearAll: 'Borrar Todo',
     emptyWorkspace: 'Espacio de trabajo vacío',
+    emptyArchived: 'No hay cuentas archivadas',
     startAdding: 'Comience agregando su primera cuenta T.',
     confirmation: 'Confirmación',
-    confirmDeleteAll: '¿Está seguro de que desea eliminar todas las cuentas? Todo el trabajo se perderá.',
+    confirmDeleteAll: '¿Está seguro de que desea eliminar todas las cuentas visibles? Todo el trabajo se perderá.',
     confirmDeleteOne: '¿Está seguro de que desea eliminar esta cuenta permanentemente?',
     cancel: 'Cancelar',
     deleteAll: 'Borrar Todo',
     delete: 'Eliminar',
     trialBalanceTitle: 'Balance de Comprobación',
-    trialBalanceSubtitle: 'Resumen de saldos por cuenta',
+    trialBalanceSubtitle: 'Resumen de saldos por cuenta (Visibles)',
     tableAccounts: 'Cuentas',
     tableDebit: 'Saldo Deudor',
     tableCredit: 'Saldo Acreedor',
@@ -146,7 +161,12 @@ const TRANSLATIONS = {
     type: 'Tipo',
     value: 'Valor',
     debtor: 'Deudora',
-    creditor: 'Acreedora'
+    creditor: 'Acreedora',
+    archive: 'Archivar',
+    unarchive: 'Desarchivar',
+    showArchived: 'Ver Archivados',
+    showActive: 'Ver Activos',
+    archivedView: 'Modo Archivo'
   }
 };
 
@@ -239,7 +259,7 @@ const TAccountVisual = ({ entries, onDeleteEntry, lang, t }) => {
 };
 
 // --- Componente: Cartão do Razonete ---
-const RazoneteCard = ({ data, onUpdate, onDeleteRequest, lang, t }) => {
+const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t }) => {
   const [inputs, setInputs] = useState({ debit: '', credit: '', ref: '' });
 
   const totals = useMemo(() => {
@@ -279,93 +299,121 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest, lang, t }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm hover:shadow-md border border-slate-200 p-4 flex flex-col gap-3 w-full transition-all duration-200 relative group">
+    <div className={`
+      bg-white rounded-xl shadow-sm hover:shadow-md border border-slate-200 p-4 flex flex-col gap-3 w-full transition-all duration-200 relative group
+      ${data.archived ? 'opacity-90 border-dashed border-slate-300' : ''}
+    `}>
       {/* Cabeçalho do Card */}
-      <div className="relative pr-8"> 
+      <div className="relative pr-16"> {/* Aumentado PR para caber 2 botões */}
         <input 
           type="text" 
           value={data.title}
           onChange={(e) => onUpdate({ ...data, title: e.target.value })}
           className="text-lg font-bold text-slate-800 w-full border-b border-transparent focus:border-blue-500 outline-none placeholder-slate-400 bg-transparent"
           placeholder={t.accountName}
+          disabled={data.archived}
         />
-        <button 
-          type="button"
-          onClick={() => onDeleteRequest(data.id)}
-          className="absolute -top-1 -right-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full p-2 transition-all z-10"
-          title={t.deleteAccount}
-        >
-          <X size={18} />
-        </button>
-      </div>
-
-      <TAccountVisual entries={data.entries} onDeleteEntry={handleDeleteEntry} lang={lang} t={t} />
-
-      <div className={`
-        flex justify-between items-center p-2 rounded-lg border text-sm font-bold
-        ${totals.balance >= 0 
-          ? 'bg-blue-50 border-blue-100 text-blue-800' 
-          : 'bg-red-50 border-red-100 text-red-800'}
-      `}>
-        <span className="text-xs uppercase tracking-wider opacity-80">
-          {totals.balance >= 0 ? t.debitBalance : t.creditBalance}
-        </span>
-        <span className="text-base">
-          {formatCurrency(Math.abs(totals.balance), lang)}
-        </span>
-      </div>
-
-      <div className="flex flex-col gap-2 mt-1">
-        <div className="grid grid-cols-2 gap-2">
-          <div className="relative">
-            <span className="absolute left-2 top-2 text-blue-300 text-xs font-bold pointer-events-none">D</span>
-            <input 
-              id={`debit-${data.id}`}
-              type="number" 
-              step="0.01"
-              value={inputs.debit}
-              onChange={(e) => setInputs({ ...inputs, debit: e.target.value })}
-              onKeyDown={handleKeyDown}
-              className="w-full pl-6 pr-2 py-2 border border-slate-200 rounded text-sm text-blue-700 font-semibold focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none transition-all"
-              placeholder="0,00"
-            />
-          </div>
-          <div className="relative">
-            <span className="absolute left-2 top-2 text-red-300 text-xs font-bold pointer-events-none">C</span>
-            <input 
-              type="number" 
-              step="0.01"
-              value={inputs.credit}
-              onChange={(e) => setInputs({ ...inputs, credit: e.target.value })}
-              onKeyDown={handleKeyDown}
-              className="w-full pl-6 pr-2 py-2 border border-slate-200 rounded text-sm text-red-700 font-semibold focus:ring-2 focus:ring-red-100 focus:border-red-400 outline-none transition-all"
-              placeholder="0,00"
-            />
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <input 
-            type="text" 
-            value={inputs.ref}
-            onChange={(e) => setInputs({ ...inputs, ref: e.target.value })}
-            onKeyDown={handleKeyDown}
-            className="w-2/3 px-3 py-2 border border-slate-200 rounded text-sm focus:border-blue-400 outline-none"
-            placeholder={t.ref}
-          />
+        
+        {/* Container de Botões de Ação */}
+        <div className="absolute -top-1 -right-2 flex gap-1 z-10">
           <button 
-            onClick={handleAddEntry}
-            className="w-1/3 bg-slate-800 text-white rounded text-sm font-medium hover:bg-slate-700 active:scale-95 transition-all flex items-center justify-center gap-1"
+            type="button"
+            onClick={() => onArchive(data.id)}
+            className={`
+              rounded-full p-2 transition-all
+              ${data.archived 
+                ? 'text-blue-500 hover:bg-blue-50' 
+                : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'}
+            `}
+            title={data.archived ? t.unarchive : t.archive}
           >
-            {t.addEntry}
+            {data.archived ? <ArchiveRestore size={18} /> : <Archive size={18} />}
+          </button>
+
+          <button 
+            type="button"
+            onClick={() => onDeleteRequest(data.id)}
+            className="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full p-2 transition-all"
+            title={t.deleteAccount}
+          >
+            <X size={18} />
           </button>
         </div>
       </div>
+
+      <div className={data.archived ? 'pointer-events-none grayscale-[0.5]' : ''}>
+        <TAccountVisual entries={data.entries} onDeleteEntry={handleDeleteEntry} lang={lang} t={t} />
+
+        <div className={`
+          flex justify-between items-center p-2 rounded-lg border text-sm font-bold
+          ${totals.balance >= 0 
+            ? 'bg-blue-50 border-blue-100 text-blue-800' 
+            : 'bg-red-50 border-red-100 text-red-800'}
+        `}>
+          <span className="text-xs uppercase tracking-wider opacity-80">
+            {totals.balance >= 0 ? t.debitBalance : t.creditBalance}
+          </span>
+          <span className="text-base">
+            {formatCurrency(Math.abs(totals.balance), lang)}
+          </span>
+        </div>
+      </div>
+
+      {/* Input de Dados (Escondido se arquivado) */}
+      {!data.archived && (
+        <div className="flex flex-col gap-2 mt-1">
+          <div className="grid grid-cols-2 gap-2">
+            <div className="relative">
+              <span className="absolute left-2 top-2 text-blue-300 text-xs font-bold pointer-events-none">D</span>
+              <input 
+                id={`debit-${data.id}`}
+                type="number" 
+                step="0.01"
+                value={inputs.debit}
+                onChange={(e) => setInputs({ ...inputs, debit: e.target.value })}
+                onKeyDown={handleKeyDown}
+                className="w-full pl-6 pr-2 py-2 border border-slate-200 rounded text-sm text-blue-700 font-semibold focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none transition-all"
+                placeholder="0,00"
+              />
+            </div>
+            <div className="relative">
+              <span className="absolute left-2 top-2 text-red-300 text-xs font-bold pointer-events-none">C</span>
+              <input 
+                type="number" 
+                step="0.01"
+                value={inputs.credit}
+                onChange={(e) => setInputs({ ...inputs, credit: e.target.value })}
+                onKeyDown={handleKeyDown}
+                className="w-full pl-6 pr-2 py-2 border border-slate-200 rounded text-sm text-red-700 font-semibold focus:ring-2 focus:ring-red-100 focus:border-red-400 outline-none transition-all"
+                placeholder="0,00"
+              />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <input 
+              type="text" 
+              value={inputs.ref}
+              onChange={(e) => setInputs({ ...inputs, ref: e.target.value })}
+              onKeyDown={handleKeyDown}
+              className="w-2/3 px-3 py-2 border border-slate-200 rounded text-sm focus:border-blue-400 outline-none"
+              placeholder={t.ref}
+            />
+            <button 
+              onClick={handleAddEntry}
+              className="w-1/3 bg-slate-800 text-white rounded text-sm font-medium hover:bg-slate-700 active:scale-95 transition-all flex items-center justify-center gap-1"
+            >
+              {t.addEntry}
+            </button>
+          </div>
+        </div>
+      )}
 
       <textarea 
         value={data.comment}
         onChange={(e) => onUpdate({ ...data, comment: e.target.value })}
         className="w-full text-xs p-2 border border-slate-200 rounded resize-y min-h-[40px] bg-slate-50 focus:bg-white focus:border-blue-400 outline-none transition-colors"
         placeholder={t.notes}
+        disabled={data.archived}
       />
     </div>
   );
@@ -496,12 +544,16 @@ const TrialBalanceModal = ({ isOpen, onClose, razonetes, lang, t }) => {
 const App = () => {
   const [razonetes, setRazonetes] = useState([]);
   const [isTrialBalanceOpen, setIsTrialBalanceOpen] = useState(false);
-  const [currentLang, setCurrentLang] = useState('pt'); // Estado do idioma
-  const t = TRANSLATIONS[currentLang]; // Atalho para as traduções
+  const [currentLang, setCurrentLang] = useState('pt');
+  
+  // NOVO: Estado para controlar se estamos vendo ativos ou arquivados
+  const [showArchived, setShowArchived] = useState(false); 
+  
+  const t = TRANSLATIONS[currentLang];
    
   const [confirmModal, setConfirmModal] = useState({ 
     isOpen: false, 
-    type: null, // 'SINGLE' | 'ALL'
+    type: null,
     targetId: null 
   });
 
@@ -518,7 +570,8 @@ const App = () => {
             { id: 'e1', type: 'DEBIT', value: 1000, ref: 'Cap. Social' },
             { id: 'e2', type: 'CREDIT', value: 200, ref: 'Mat. Escrit.' }
           ],
-          comment: 'Disponibilidade imediata.'
+          comment: 'Disponibilidade imediata.',
+          archived: false // Default
         },
         {
           id: 'demo-2',
@@ -526,7 +579,8 @@ const App = () => {
           entries: [
             { id: 'e3', type: 'CREDIT', value: 1000, ref: 'Integralização' }
           ],
-          comment: 'Capital dos sócios.'
+          comment: 'Capital dos sócios.',
+          archived: false // Default
         }
       ]);
     }
@@ -536,10 +590,16 @@ const App = () => {
     localStorage.setItem('razonetes_react_v1', JSON.stringify(razonetes));
   }, [razonetes]);
 
+  // Filtra razonetes baseado na view atual (Ativos ou Arquivados)
+  const visibleRazonetes = useMemo(() => {
+    return razonetes.filter(r => showArchived ? r.archived : !r.archived);
+  }, [razonetes, showArchived]);
+
+  // O cálculo global agora considera APENAS o que está visível para manter a consistência visual
   const globalStatus = useMemo(() => {
     let totalD = 0;
     let totalC = 0;
-    razonetes.forEach(r => {
+    visibleRazonetes.forEach(r => {
       totalD += r.entries.filter(e => e.type === 'DEBIT').reduce((acc, c) => acc + c.value, 0);
       totalC += r.entries.filter(e => e.type === 'CREDIT').reduce((acc, c) => acc + c.value, 0);
     });
@@ -549,17 +609,27 @@ const App = () => {
       diff: totalD - totalC,
       isBalanced: Math.abs(totalD - totalC) < 0.01
     };
-  }, [razonetes]);
+  }, [visibleRazonetes]);
 
   const addRazonete = () => {
+    // Se o usuário adiciona um novo, forçamos a vista para "Ativos" para que ele veja o que criou
+    if (showArchived) setShowArchived(false);
+    
     setRazonetes([
       ...razonetes, 
-      { id: crypto.randomUUID(), title: '', entries: [], comment: '' }
+      { id: crypto.randomUUID(), title: '', entries: [], comment: '', archived: false }
     ]);
   };
 
   const updateRazonete = (updatedRazonete) => {
     setRazonetes(razonetes.map(r => r.id === updatedRazonete.id ? updatedRazonete : r));
+  };
+
+  // Nova função para alternar o estado de arquivamento
+  const toggleArchive = (id) => {
+    setRazonetes(razonetes.map(r => 
+      r.id === id ? { ...r, archived: !r.archived } : r
+    ));
   };
 
   const requestDelete = (id) => {
@@ -574,21 +644,25 @@ const App = () => {
     if (confirmModal.type === 'SINGLE' && confirmModal.targetId) {
       setRazonetes(razonetes.filter(r => r.id !== confirmModal.targetId));
     } else if (confirmModal.type === 'ALL') {
-      setRazonetes([]);
+      // Apaga apenas os visíveis (ativos ou arquivados, dependendo da view)
+      const idsToDelete = visibleRazonetes.map(r => r.id);
+      setRazonetes(razonetes.filter(r => !idsToDelete.includes(r.id)));
     }
     setConfirmModal({ isOpen: false, type: null, targetId: null });
   };
 
   const exportCSV = () => {
     let csv = "data:text/csv;charset=utf-8,\uFEFF";
-    csv += `ID_${t.accountName};${t.accountName};${t.nature};${t.type};${t.value};${t.ref};Nota\n`;
+    csv += `ID_${t.accountName};${t.accountName};Status;${t.nature};${t.type};${t.value};${t.ref};Nota\n`;
+    // Exporta TODOS (ativos e arquivados) para auditoria completa
     razonetes.forEach(r => {
       r.entries.forEach(e => {
         const row = [
           r.id,
           `"${r.title}"`,
+          r.archived ? 'Arquivado' : 'Ativo', // Status
           e.type === 'DEBIT' ? t.debtor : t.creditor,
-          e.type === 'DEBIT' ? 'Debito' : 'Credito', // Mantendo interno para consistência
+          e.type === 'DEBIT' ? 'Debito' : 'Credito', 
           e.value.toFixed(2).replace('.', ','),
           `"${e.ref}"`,
           `"${r.comment.replace(/\n/g, ' ')}"`
@@ -607,11 +681,16 @@ const App = () => {
       <header className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
         <div className="max-w-[1800px] mx-auto px-4 sm:px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-3">
-            <div className="bg-blue-600 text-white p-2 rounded-lg shadow-blue-200 shadow-lg">
-              <Scale size={24} weight="bold" />
+            <div className={`
+              text-white p-2 rounded-lg shadow-lg transition-colors
+              ${showArchived ? 'bg-slate-600 shadow-slate-200' : 'bg-blue-600 shadow-blue-200'}
+            `}>
+              {showArchived ? <Archive size={24} /> : <Scale size={24} weight="bold" />}
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-900 leading-none">{t.appTitle}</h1>
+              <h1 className="text-xl font-bold text-slate-900 leading-none">
+                {t.appTitle} {showArchived && <span className="text-slate-400 text-sm font-normal">({t.archivedView})</span>}
+              </h1>
               <p className="text-xs text-slate-500 mt-1">{t.appSubtitle}</p>
             </div>
           </div>
@@ -630,8 +709,7 @@ const App = () => {
             )}
           </div>
 
-          <div className="flex gap-2 items-center">
-            {/* Seletor de Idioma */}
+          <div className="flex gap-2 items-center flex-wrap justify-end">
             <div className="relative group mr-2">
               <button className="p-2 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-lg transition-colors flex items-center gap-1" title="Mudar Idioma">
                 <Globe size={20} />
@@ -643,6 +721,20 @@ const App = () => {
                 <button onClick={() => setCurrentLang('es')} className={`block w-full text-left px-4 py-2 text-sm hover:bg-slate-50 ${currentLang === 'es' ? 'font-bold text-blue-600' : 'text-slate-600'}`}>Español</button>
               </div>
             </div>
+
+            {/* TOGGLE VIEW: Ativos vs Arquivados */}
+            <button 
+              onClick={() => setShowArchived(!showArchived)} 
+              className={`
+                flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition shadow-sm active:scale-95
+                ${showArchived 
+                  ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' 
+                  : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-50'}
+              `}
+            >
+              {showArchived ? <Scale size={16} /> : <Archive size={16} />} 
+              {showArchived ? t.showActive : t.showArchived}
+            </button>
 
             <button onClick={addRazonete} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition shadow-sm active:scale-95">
               <Plus size={16} /> {t.newAccount}
@@ -663,20 +755,25 @@ const App = () => {
       </header>
 
       <main className="max-w-[1800px] mx-auto p-6">
-        {razonetes.length === 0 ? (
+        {visibleRazonetes.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 opacity-50">
-            <Scale size={64} className="text-slate-300 mb-4" />
-            <h3 className="text-xl font-medium text-slate-500">{t.emptyWorkspace}</h3>
-            <p className="text-slate-400">{t.startAdding}</p>
+            {showArchived ? <Archive size={64} className="text-slate-300 mb-4" /> : <Scale size={64} className="text-slate-300 mb-4" />}
+            <h3 className="text-xl font-medium text-slate-500">
+              {showArchived ? t.emptyArchived : t.emptyWorkspace}
+            </h3>
+            <p className="text-slate-400">
+              {showArchived ? '' : t.startAdding}
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-6 items-start">
-            {razonetes.map(razonete => (
+            {visibleRazonetes.map(razonete => (
               <RazoneteCard 
                 key={razonete.id} 
                 data={razonete} 
                 onUpdate={updateRazonete} 
                 onDeleteRequest={requestDelete}
+                onArchive={toggleArchive} // Nova prop
                 lang={currentLang}
                 t={t}
               />
@@ -688,7 +785,7 @@ const App = () => {
       <TrialBalanceModal 
         isOpen={isTrialBalanceOpen} 
         onClose={() => setIsTrialBalanceOpen(false)} 
-        razonetes={razonetes} 
+        razonetes={visibleRazonetes} // Passando apenas os visíveis
         lang={currentLang}
         t={t}
       />

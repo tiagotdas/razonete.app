@@ -11,7 +11,9 @@ import {
   Globe,
   Archive,
   ArchiveRestore,
-  FileSpreadsheet // Novo ícone importado para o botão de Excel
+  FileSpreadsheet,
+  Linkedin,
+  Calendar // Novo ícone para datas
 } from 'lucide-react';
 
 // --- Dicionário de Traduções (I18n) ---
@@ -66,7 +68,14 @@ const TRANSLATIONS = {
     showArchived: 'Ver Arquivados',
     showActive: 'Ver Ativos',
     archivedView: 'Modo Arquivo',
-    exportExcel: 'Exportar Excel' // Nova tradução
+    exportExcel: 'Exportar Excel',
+    developedBy: 'Desenvolvido por', 
+    role: 'Auditor & Cientista de Dados',
+    date: 'Data',
+    period: 'Período',
+    startDate: 'Data Inicial',
+    endDate: 'Data Final',
+    filter: 'Filtrar'
   },
   en: {
     debit: 'Debit',
@@ -118,7 +127,14 @@ const TRANSLATIONS = {
     showArchived: 'Show Archived',
     showActive: 'Show Active',
     archivedView: 'Archive Mode',
-    exportExcel: 'Export to Excel' // Nova tradução
+    exportExcel: 'Export to Excel',
+    developedBy: 'Developed by',
+    role: 'Auditor & Data Scientist',
+    date: 'Date',
+    period: 'Period',
+    startDate: 'Start Date',
+    endDate: 'End Date',
+    filter: 'Filter'
   },
   es: {
     debit: 'Débito',
@@ -170,7 +186,14 @@ const TRANSLATIONS = {
     showArchived: 'Ver Archivados',
     showActive: 'Ver Activos',
     archivedView: 'Modo Archivo',
-    exportExcel: 'Exportar a Excel' // Nova tradução
+    exportExcel: 'Exportar a Excel',
+    developedBy: 'Desarrollado por',
+    role: 'Auditor & Científico de Datos',
+    date: 'Fecha',
+    period: 'Período',
+    startDate: 'Fecha Inicio',
+    endDate: 'Fecha Fin',
+    filter: 'Filtrar'
   }
 };
 
@@ -181,7 +204,7 @@ const LOCALE_CONFIG = {
   es: { locale: 'es-ES', currency: 'EUR' }
 };
 
-// --- Utilitários de Formatação Dinâmicos ---
+// --- Utilitários ---
 const formatCurrency = (value, lang = 'pt') => {
   const config = LOCALE_CONFIG[lang];
   return new Intl.NumberFormat(config.locale, { style: 'currency', currency: config.currency }).format(value);
@@ -192,70 +215,86 @@ const formatNumber = (value, lang = 'pt') => {
   return new Intl.NumberFormat(config.locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
 };
 
+// Helper para formatar data ISO (YYYY-MM-DD) para local (DD/MM) na visualização
+const formatDateShort = (isoDate) => {
+  if (!isoDate) return '';
+  const [year, month, day] = isoDate.split('-');
+  return `${day}/${month}`;
+};
+
 // --- Componente: Visual do T (CSS Puro) ---
 const TAccountVisual = ({ entries, onDeleteEntry, lang, t }) => {
   const debits = entries.filter(e => e.type === 'DEBIT');
   const credits = entries.filter(e => e.type === 'CREDIT');
 
+  const renderEntry = (entry, isRightAligned = false) => (
+    <div key={entry.id} className={`group flex items-center py-1 border-b border-transparent hover:bg-slate-100 rounded px-1 transition-colors ${isRightAligned ? 'justify-end' : 'justify-between'}`}>
+      {!isRightAligned && (
+        <div className="flex items-center gap-1 min-w-0 flex-1">
+          <button 
+            onClick={() => onDeleteEntry(entry.id)}
+            className="text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-600 transition-opacity p-1 flex-shrink-0"
+            title={t.deleteEntry}
+          >
+            <Trash2 size={12} />
+          </button>
+          <div className="flex flex-col leading-none truncate">
+            <span className="text-[10px] text-slate-500 font-medium truncate" title={entry.ref}>
+              {entry.ref}
+            </span>
+            {entry.date && (
+              <span className="text-[9px] text-slate-400">
+                {formatDateShort(entry.date)}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+      
+      <span className={`text-sm font-semibold tabular-nums ${isRightAligned ? 'text-red-700' : 'text-blue-700'}`}>
+        {formatNumber(entry.value, lang)}
+      </span>
+
+      {isRightAligned && (
+        <div className="flex items-center gap-1 min-w-0 flex-1 flex-row-reverse ml-2">
+          <button 
+            onClick={() => onDeleteEntry(entry.id)}
+            className="text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-600 transition-opacity p-1 flex-shrink-0"
+            title={t.deleteEntry}
+          >
+            <Trash2 size={12} />
+          </button>
+          <div className="flex flex-col leading-none truncate items-end">
+            <span className="text-[10px] text-slate-500 font-medium truncate" title={entry.ref}>
+              {entry.ref}
+            </span>
+            {entry.date && (
+              <span className="text-[9px] text-slate-400">
+                {formatDateShort(entry.date)}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <div className="relative w-full mt-6 mb-2">
-      {/* Linha Horizontal do T */}
       <div className="border-t-2 border-slate-400 w-full absolute top-8 left-0 z-0"></div>
-      {/* Linha Vertical do T */}
       <div className="absolute top-8 bottom-0 left-1/2 -translate-x-1/2 border-l-2 border-slate-400 z-0 h-[calc(100%-32px)]"></div>
 
-      {/* Cabeçalhos */}
       <div className="flex justify-between text-xs font-bold text-slate-400 px-2 mb-2 h-6 items-center">
         <span className="w-1/2 pl-2">{t.debit}</span>
         <span className="w-1/2 text-right pr-2">{t.credit}</span>
       </div>
 
-      {/* Área de Listas */}
       <div className="flex w-full h-40 relative z-10">
-        {/* Lista de Débitos */}
         <div className="w-1/2 pr-3 pl-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-slate-200">
-          {debits.map(entry => (
-            <div key={entry.id} className="group flex justify-between items-center py-1 border-b border-transparent hover:bg-blue-50/80 rounded px-1 transition-colors">
-              <div className="flex items-center gap-1 min-w-0">
-                <button 
-                  onClick={() => onDeleteEntry(entry.id)}
-                  className="text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-600 transition-opacity p-1"
-                  title={t.deleteEntry}
-                >
-                  <Trash2 size={12} />
-                </button>
-                <span className="text-[10px] text-slate-500 font-medium truncate max-w-[50px]" title={entry.ref}>
-                  {entry.ref && `(${entry.ref})`}
-                </span>
-              </div>
-              <span className="text-blue-700 font-semibold text-sm tabular-nums">
-                {formatNumber(entry.value, lang)}
-              </span>
-            </div>
-          ))}
+          {debits.map(entry => renderEntry(entry, false))}
         </div>
-
-        {/* Lista de Créditos */}
         <div className="w-1/2 pl-3 pr-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-slate-200 text-right">
-          {credits.map(entry => (
-            <div key={entry.id} className="group flex justify-end items-center py-1 border-b border-transparent hover:bg-red-50/80 rounded px-1 transition-colors">
-              <span className="text-red-700 font-semibold text-sm tabular-nums">
-                {formatNumber(entry.value, lang)}
-              </span>
-              <div className="flex items-center gap-1 min-w-0 ml-auto pl-2 flex-row-reverse">
-                <button 
-                  onClick={() => onDeleteEntry(entry.id)}
-                  className="text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-600 transition-opacity p-1"
-                  title={t.deleteEntry}
-                >
-                  <Trash2 size={12} />
-                </button>
-                <span className="text-[10px] text-slate-500 font-medium truncate max-w-[50px]" title={entry.ref}>
-                  {entry.ref && `(${entry.ref})`}
-                </span>
-              </div>
-            </div>
-          ))}
+          {credits.map(entry => renderEntry(entry, true))}
         </div>
       </div>
     </div>
@@ -264,7 +303,9 @@ const TAccountVisual = ({ entries, onDeleteEntry, lang, t }) => {
 
 // --- Componente: Cartão do Razonete ---
 const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t }) => {
-  const [inputs, setInputs] = useState({ debit: '', credit: '', ref: '' });
+  // Inicializa a data com o dia de hoje (YYYY-MM-DD)
+  const today = new Date().toISOString().split('T')[0];
+  const [inputs, setInputs] = useState({ debit: '', credit: '', ref: '', date: today });
 
   const totals = useMemo(() => {
     const debit = data.entries.filter(e => e.type === 'DEBIT').reduce((acc, curr) => acc + curr.value, 0);
@@ -275,20 +316,30 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t }) =
   const handleAddEntry = () => {
     const newEntries = [...data.entries];
     const ref = inputs.ref.trim();
+    const date = inputs.date; // Captura a data
     let added = false;
 
+    const createEntry = (type, value) => ({
+      id: crypto.randomUUID(),
+      type,
+      value: parseFloat(value),
+      ref,
+      date // Persiste a data
+    });
+
     if (inputs.debit && parseFloat(inputs.debit) > 0) {
-      newEntries.push({ id: crypto.randomUUID(), type: 'DEBIT', value: parseFloat(inputs.debit), ref });
+      newEntries.push(createEntry('DEBIT', inputs.debit));
       added = true;
     }
     if (inputs.credit && parseFloat(inputs.credit) > 0) {
-      newEntries.push({ id: crypto.randomUUID(), type: 'CREDIT', value: parseFloat(inputs.credit), ref });
+      newEntries.push(createEntry('CREDIT', inputs.credit));
       added = true;
     }
 
     if (added) {
       onUpdate({ ...data, entries: newEntries });
-      setInputs({ debit: '', credit: '', ref: '' });
+      // Mantém a data de hoje para o próximo lançamento para facilitar
+      setInputs({ debit: '', credit: '', ref: '', date: inputs.date }); 
       document.getElementById(`debit-${data.id}`)?.focus();
     }
   };
@@ -307,8 +358,7 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t }) =
       bg-white rounded-xl shadow-sm hover:shadow-md border border-slate-200 p-4 flex flex-col gap-3 w-full transition-all duration-200 relative group
       ${data.archived ? 'opacity-90 border-dashed border-slate-300' : ''}
     `}>
-      {/* Cabeçalho do Card */}
-      <div className="relative pr-16"> {/* Aumentado PR para caber 2 botões */}
+      <div className="relative pr-16">
         <input 
           type="text" 
           value={data.title}
@@ -317,23 +367,15 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t }) =
           placeholder={t.accountName}
           disabled={data.archived}
         />
-        
-        {/* Container de Botões de Ação */}
         <div className="absolute -top-1 -right-2 flex gap-1 z-10">
           <button 
             type="button"
             onClick={() => onArchive(data.id)}
-            className={`
-              rounded-full p-2 transition-all
-              ${data.archived 
-                ? 'text-blue-500 hover:bg-blue-50' 
-                : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'}
-            `}
+            className={`rounded-full p-2 transition-all ${data.archived ? 'text-blue-500 hover:bg-blue-50' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'}`}
             title={data.archived ? t.unarchive : t.archive}
           >
             {data.archived ? <ArchiveRestore size={18} /> : <Archive size={18} />}
           </button>
-
           <button 
             type="button"
             onClick={() => onDeleteRequest(data.id)}
@@ -347,13 +389,7 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t }) =
 
       <div className={data.archived ? 'pointer-events-none grayscale-[0.5]' : ''}>
         <TAccountVisual entries={data.entries} onDeleteEntry={handleDeleteEntry} lang={lang} t={t} />
-
-        <div className={`
-          flex justify-between items-center p-2 rounded-lg border text-sm font-bold
-          ${totals.balance >= 0 
-            ? 'bg-blue-50 border-blue-100 text-blue-800' 
-            : 'bg-red-50 border-red-100 text-red-800'}
-        `}>
+        <div className={`flex justify-between items-center p-2 rounded-lg border text-sm font-bold ${totals.balance >= 0 ? 'bg-blue-50 border-blue-100 text-blue-800' : 'bg-red-50 border-red-100 text-red-800'}`}>
           <span className="text-xs uppercase tracking-wider opacity-80">
             {totals.balance >= 0 ? t.debitBalance : t.creditBalance}
           </span>
@@ -363,7 +399,6 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t }) =
         </div>
       </div>
 
-      {/* Input de Dados (Escondido se arquivado) */}
       {!data.archived && (
         <div className="flex flex-col gap-2 mt-1">
           <div className="grid grid-cols-2 gap-2">
@@ -394,12 +429,20 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t }) =
             </div>
           </div>
           <div className="flex gap-2">
+            {/* Campo de Data (Novo) */}
+            <input 
+              type="date"
+              value={inputs.date}
+              onChange={(e) => setInputs({ ...inputs, date: e.target.value })}
+              className="w-1/3 px-2 py-2 border border-slate-200 rounded text-sm focus:border-blue-400 outline-none text-slate-600"
+              title={t.date}
+            />
             <input 
               type="text" 
               value={inputs.ref}
               onChange={(e) => setInputs({ ...inputs, ref: e.target.value })}
               onKeyDown={handleKeyDown}
-              className="w-2/3 px-3 py-2 border border-slate-200 rounded text-sm focus:border-blue-400 outline-none"
+              className="w-1/3 px-3 py-2 border border-slate-200 rounded text-sm focus:border-blue-400 outline-none"
               placeholder={t.ref}
             />
             <button 
@@ -425,13 +468,32 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t }) =
 
 // --- Componente: Modal do Balancete de Verificação ---
 const TrialBalanceModal = ({ isOpen, onClose, razonetes, lang, t }) => {
-  if (!isOpen) return null;
+  // Filtros de Data
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
-  // Lógica de Agregação (Data Aggregation)
+  // CORREÇÃO: O return null só pode acontecer DEPOIS de todos os hooks serem declarados.
+  // Movi o return null para baixo.
+
+  // Lógica de Agregação com Filtro de Data
   const reportData = useMemo(() => {
+    // Optimization: se não estiver aberto, não calculamos (mas o hook existe)
+    if (!isOpen) return [];
+
     return razonetes.map(r => {
-      const totalD = r.entries.filter(e => e.type === 'DEBIT').reduce((acc, c) => acc + c.value, 0);
-      const totalC = r.entries.filter(e => e.type === 'CREDIT').reduce((acc, c) => acc + c.value, 0);
+      // Filtra os lançamentos antes de somar
+      const filteredEntries = r.entries.filter(entry => {
+        if (!entry.date) return true; // Lançamentos legados sem data aparecem sempre
+        
+        const entryDate = entry.date;
+        const start = startDate ? startDate : '0000-01-01';
+        const end = endDate ? endDate : '9999-12-31';
+        
+        return entryDate >= start && entryDate <= end;
+      });
+
+      const totalD = filteredEntries.filter(e => e.type === 'DEBIT').reduce((acc, c) => acc + c.value, 0);
+      const totalC = filteredEntries.filter(e => e.type === 'CREDIT').reduce((acc, c) => acc + c.value, 0);
       const balance = totalD - totalC;
 
       return {
@@ -441,7 +503,7 @@ const TrialBalanceModal = ({ isOpen, onClose, razonetes, lang, t }) => {
         creditBalance: balance < 0 ? Math.abs(balance) : 0
       };
     }).sort((a, b) => a.title.localeCompare(b.title));
-  }, [razonetes]);
+  }, [razonetes, startDate, endDate, isOpen]);
 
   const totals = useMemo(() => {
     return reportData.reduce((acc, curr) => ({
@@ -450,47 +512,84 @@ const TrialBalanceModal = ({ isOpen, onClose, razonetes, lang, t }) => {
     }), { debit: 0, credit: 0 });
   }, [reportData]);
 
+  // CORREÇÃO AQUI: Verificação de isOpen movida para depois dos Hooks
+  if (!isOpen) return null;
+
   const isBalanced = Math.abs(totals.debit - totals.credit) < 0.01;
 
-  // Função para exportar Balancete para Excel (CSV)
   const exportToExcel = () => {
-    let csv = "data:text/csv;charset=utf-8,\uFEFF"; // BOM para suporte a acentos
-    // Cabeçalho
+    let csv = "data:text/csv;charset=utf-8,\uFEFF";
+    csv += `${t.period}: ${startDate || 'Inicio'} - ${endDate || 'Hoje'}\n`; 
     csv += `${t.tableAccounts};${t.tableDebit};${t.tableCredit}\n`;
-    
-    // Dados
     reportData.forEach(row => {
         const debit = row.debitBalance > 0 ? row.debitBalance.toFixed(2).replace('.', ',') : '0,00';
         const credit = row.creditBalance > 0 ? row.creditBalance.toFixed(2).replace('.', ',') : '0,00';
         csv += `"${row.title}";${debit};${credit}\n`;
     });
-
-    // Totais
     csv += `${t.totals};${totals.debit.toFixed(2).replace('.', ',')};${totals.credit.toFixed(2).replace('.', ',')}\n`;
-
     const link = document.createElement("a");
     link.href = encodeURI(csv);
-    link.download = `balancete_${new Date().toISOString().slice(0,10)}.csv`;
+    link.download = `balancete_${startDate || 'geral'}_a_${endDate || 'atual'}.csv`;
     link.click();
   };
 
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[70] p-4 animate-in fade-in duration-200">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
-        {/* Header do Modal */}
-        <div className="p-6 border-b border-slate-200 flex justify-between items-center bg-slate-50">
-          <div className="flex items-center gap-3">
-            <div className="bg-blue-600 text-white p-2 rounded-lg">
-              <ClipboardList size={24} />
+        
+        {/* Header */}
+        <div className="p-6 border-b border-slate-200 flex flex-col gap-4 bg-slate-50">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <div className="bg-blue-600 text-white p-2 rounded-lg">
+                <ClipboardList size={24} />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-slate-800">{t.trialBalanceTitle}</h2>
+                <p className="text-sm text-slate-500">{t.trialBalanceSubtitle}</p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-xl font-bold text-slate-800">{t.trialBalanceTitle}</h2>
-              <p className="text-sm text-slate-500">{t.trialBalanceSubtitle}</p>
-            </div>
+            <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full transition-colors">
+              <X size={24} className="text-slate-500" />
+            </button>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full transition-colors">
-            <X size={24} className="text-slate-500" />
-          </button>
+
+          {/* Área de Filtros de Data */}
+          <div className="flex flex-wrap gap-4 items-center bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+            <div className="flex items-center gap-2 text-slate-600">
+              <Calendar size={18} />
+              <span className="font-semibold text-sm">{t.period}:</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex flex-col">
+                <label className="text-[10px] text-slate-400 font-bold uppercase">{t.startDate}</label>
+                <input 
+                  type="date" 
+                  value={startDate} 
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="border border-slate-300 rounded px-2 py-1 text-sm text-slate-700 outline-none focus:border-blue-500"
+                />
+              </div>
+              <span className="text-slate-400 mt-3">→</span>
+              <div className="flex flex-col">
+                <label className="text-[10px] text-slate-400 font-bold uppercase">{t.endDate}</label>
+                <input 
+                  type="date" 
+                  value={endDate} 
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="border border-slate-300 rounded px-2 py-1 text-sm text-slate-700 outline-none focus:border-blue-500"
+                />
+              </div>
+            </div>
+            {(startDate || endDate) && (
+              <button 
+                onClick={() => { setStartDate(''); setEndDate(''); }}
+                className="ml-auto text-xs text-red-500 hover:text-red-700 hover:underline mt-3"
+              >
+                {t.clearAll}
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Corpo do Relatório */}
@@ -516,7 +615,6 @@ const TrialBalanceModal = ({ isOpen, onClose, razonetes, lang, t }) => {
                 </tr>
               ))}
             </tbody>
-            {/* Rodapé do Relatório (Totais) */}
             <tfoot>
               <tr className="bg-slate-100 border-t-2 border-slate-300 font-bold text-base">
                 <td className="py-4 px-4 text-slate-800">{t.totals}</td>
@@ -530,7 +628,6 @@ const TrialBalanceModal = ({ isOpen, onClose, razonetes, lang, t }) => {
             </tfoot>
           </table>
 
-          {/* Status de Validação */}
           <div className={`mt-6 p-4 rounded-lg flex items-center gap-3 border ${isBalanced ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'}`}>
             {isBalanced ? (
               <>
@@ -552,9 +649,7 @@ const TrialBalanceModal = ({ isOpen, onClose, razonetes, lang, t }) => {
           </div>
         </div>
 
-        {/* Footer do Modal */}
         <div className="p-4 border-t border-slate-200 bg-slate-50 flex justify-end gap-2">
-          {/* BOTÃO DE EXPORTAR BALANCETE */}
           <button 
             onClick={exportToExcel}
             className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition shadow-sm active:scale-95"
@@ -562,7 +657,6 @@ const TrialBalanceModal = ({ isOpen, onClose, razonetes, lang, t }) => {
             <FileSpreadsheet size={16} />
             {t.exportExcel}
           </button>
-
           <button 
             onClick={onClose}
             className="px-6 py-2 bg-slate-800 text-white font-medium rounded-lg hover:bg-slate-700 transition"
@@ -580,42 +674,58 @@ const App = () => {
   const [razonetes, setRazonetes] = useState([]);
   const [isTrialBalanceOpen, setIsTrialBalanceOpen] = useState(false);
   const [currentLang, setCurrentLang] = useState('pt');
-  
-  // NOVO: Estado para controlar se estamos vendo ativos ou arquivados
   const [showArchived, setShowArchived] = useState(false); 
-  
   const t = TRANSLATIONS[currentLang];
-   
-  const [confirmModal, setConfirmModal] = useState({ 
-    isOpen: false, 
-    type: null,
-    targetId: null 
-  });
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, type: null, targetId: null });
 
   useEffect(() => {
     const saved = localStorage.getItem('razonetes_react_v1');
     if (saved) {
-      setRazonetes(JSON.parse(saved));
+      let parsedData = JSON.parse(saved);
+      // MIGRAÇÃO DE DADOS LEGADOS:
+      // Verifica se existem lançamentos sem data e atribui a data de hoje.
+      // Isso garante que os filtros do balancete funcionem para dados antigos.
+      const today = new Date().toISOString().split('T')[0];
+      let hasChanges = false;
+      
+      const migratedData = parsedData.map(r => ({
+        ...r,
+        entries: r.entries.map(e => {
+          if (!e.date) {
+            hasChanges = true;
+            return { ...e, date: today };
+          }
+          return e;
+        })
+      }));
+
+      setRazonetes(migratedData);
+      // Se houve migração, salva imediatamente para persistir a correção
+      if (hasChanges) {
+        localStorage.setItem('razonetes_react_v1', JSON.stringify(migratedData));
+      }
+
     } else {
+      // Dados iniciais de exemplo
       setRazonetes([
         {
           id: 'demo-1',
           title: 'Caixa (Ativo)',
           entries: [
-            { id: 'e1', type: 'DEBIT', value: 1000, ref: 'Cap. Social' },
-            { id: 'e2', type: 'CREDIT', value: 200, ref: 'Mat. Escrit.' }
+            { id: 'e1', type: 'DEBIT', value: 1000, ref: 'Cap. Social', date: new Date().toISOString().split('T')[0] },
+            { id: 'e2', type: 'CREDIT', value: 200, ref: 'Mat. Escrit.', date: new Date().toISOString().split('T')[0] }
           ],
           comment: 'Disponibilidade imediata.',
-          archived: false // Default
+          archived: false
         },
         {
           id: 'demo-2',
           title: 'Capital Social (PL)',
           entries: [
-            { id: 'e3', type: 'CREDIT', value: 1000, ref: 'Integralização' }
+            { id: 'e3', type: 'CREDIT', value: 1000, ref: 'Integralização', date: new Date().toISOString().split('T')[0] }
           ],
           comment: 'Capital dos sócios.',
-          archived: false // Default
+          archived: false
         }
       ]);
     }
@@ -625,12 +735,10 @@ const App = () => {
     localStorage.setItem('razonetes_react_v1', JSON.stringify(razonetes));
   }, [razonetes]);
 
-  // Filtra razonetes baseado na view atual (Ativos ou Arquivados)
   const visibleRazonetes = useMemo(() => {
     return razonetes.filter(r => showArchived ? r.archived : !r.archived);
   }, [razonetes, showArchived]);
 
-  // O cálculo global agora considera APENAS o que está visível para manter a consistência visual
   const globalStatus = useMemo(() => {
     let totalD = 0;
     let totalC = 0;
@@ -647,9 +755,7 @@ const App = () => {
   }, [visibleRazonetes]);
 
   const addRazonete = () => {
-    // Se o usuário adiciona um novo, forçamos a vista para "Ativos" para que ele veja o que criou
     if (showArchived) setShowArchived(false);
-    
     setRazonetes([
       ...razonetes, 
       { id: crypto.randomUUID(), title: '', entries: [], comment: '', archived: false }
@@ -660,11 +766,8 @@ const App = () => {
     setRazonetes(razonetes.map(r => r.id === updatedRazonete.id ? updatedRazonete : r));
   };
 
-  // Nova função para alternar o estado de arquivamento
   const toggleArchive = (id) => {
-    setRazonetes(razonetes.map(r => 
-      r.id === id ? { ...r, archived: !r.archived } : r
-    ));
+    setRazonetes(razonetes.map(r => r.id === id ? { ...r, archived: !r.archived } : r));
   };
 
   const requestDelete = (id) => {
@@ -679,7 +782,6 @@ const App = () => {
     if (confirmModal.type === 'SINGLE' && confirmModal.targetId) {
       setRazonetes(razonetes.filter(r => r.id !== confirmModal.targetId));
     } else if (confirmModal.type === 'ALL') {
-      // Apaga apenas os visíveis (ativos ou arquivados, dependendo da view)
       const idsToDelete = visibleRazonetes.map(r => r.id);
       setRazonetes(razonetes.filter(r => !idsToDelete.includes(r.id)));
     }
@@ -688,18 +790,18 @@ const App = () => {
 
   const exportCSV = () => {
     let csv = "data:text/csv;charset=utf-8,\uFEFF";
-    csv += `ID_${t.accountName};${t.accountName};Status;${t.nature};${t.type};${t.value};${t.ref};Nota\n`;
-    // Exporta TODOS (ativos e arquivados) para auditoria completa
+    csv += `ID_${t.accountName};${t.accountName};Status;${t.nature};${t.type};${t.value};${t.ref};${t.date};Nota\n`;
     razonetes.forEach(r => {
       r.entries.forEach(e => {
         const row = [
           r.id,
           `"${r.title}"`,
-          r.archived ? 'Arquivado' : 'Ativo', // Status
+          r.archived ? 'Arquivado' : 'Ativo',
           e.type === 'DEBIT' ? t.debtor : t.creditor,
           e.type === 'DEBIT' ? 'Debito' : 'Credito', 
           e.value.toFixed(2).replace('.', ','),
           `"${e.ref}"`,
+          e.date || '', // Exporta a data também
           `"${r.comment.replace(/\n/g, ' ')}"`
         ];
         csv += row.join(";") + "\n";
@@ -716,10 +818,7 @@ const App = () => {
       <header className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
         <div className="max-w-[1800px] mx-auto px-4 sm:px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-3">
-            <div className={`
-              text-white p-2 rounded-lg shadow-lg transition-colors
-              ${showArchived ? 'bg-slate-600 shadow-slate-200' : 'bg-blue-600 shadow-blue-200'}
-            `}>
+            <div className={`text-white p-2 rounded-lg shadow-lg transition-colors ${showArchived ? 'bg-slate-600 shadow-slate-200' : 'bg-blue-600 shadow-blue-200'}`}>
               {showArchived ? <Archive size={24} /> : <Scale size={24} weight="bold" />}
             </div>
             <div>
@@ -757,16 +856,7 @@ const App = () => {
               </div>
             </div>
 
-            {/* TOGGLE VIEW: Ativos vs Arquivados */}
-            <button 
-              onClick={() => setShowArchived(!showArchived)} 
-              className={`
-                flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition shadow-sm active:scale-95
-                ${showArchived 
-                  ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' 
-                  : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-50'}
-              `}
-            >
+            <button onClick={() => setShowArchived(!showArchived)} className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition shadow-sm active:scale-95 ${showArchived ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-50'}`}>
               {showArchived ? <Scale size={16} /> : <Archive size={16} />} 
               {showArchived ? t.showActive : t.showArchived}
             </button>
@@ -793,12 +883,8 @@ const App = () => {
         {visibleRazonetes.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 opacity-50">
             {showArchived ? <Archive size={64} className="text-slate-300 mb-4" /> : <Scale size={64} className="text-slate-300 mb-4" />}
-            <h3 className="text-xl font-medium text-slate-500">
-              {showArchived ? t.emptyArchived : t.emptyWorkspace}
-            </h3>
-            <p className="text-slate-400">
-              {showArchived ? '' : t.startAdding}
-            </p>
+            <h3 className="text-xl font-medium text-slate-500">{showArchived ? t.emptyArchived : t.emptyWorkspace}</h3>
+            <p className="text-slate-400">{showArchived ? '' : t.startAdding}</p>
           </div>
         ) : (
           <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-6 items-start">
@@ -808,7 +894,7 @@ const App = () => {
                 data={razonete} 
                 onUpdate={updateRazonete} 
                 onDeleteRequest={requestDelete}
-                onArchive={toggleArchive} // Nova prop
+                onArchive={toggleArchive}
                 lang={currentLang}
                 t={t}
               />
@@ -817,13 +903,7 @@ const App = () => {
         )}
       </main>
 
-      <TrialBalanceModal 
-        isOpen={isTrialBalanceOpen} 
-        onClose={() => setIsTrialBalanceOpen(false)} 
-        razonetes={visibleRazonetes} // Passando apenas os visíveis
-        lang={currentLang}
-        t={t}
-      />
+      <TrialBalanceModal isOpen={isTrialBalanceOpen} onClose={() => setIsTrialBalanceOpen(false)} razonetes={visibleRazonetes} lang={currentLang} t={t} />
 
       {confirmModal.isOpen && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
@@ -832,28 +912,28 @@ const App = () => {
               <AlertTriangle size={24} />
               <h3 className="text-lg font-bold text-slate-800">{t.confirmation}</h3>
             </div>
-            <p className="text-slate-600 mb-6 text-sm leading-relaxed">
-              {confirmModal.type === 'ALL' 
-                ? t.confirmDeleteAll 
-                : t.confirmDeleteOne}
-            </p>
+            <p className="text-slate-600 mb-6 text-sm leading-relaxed">{confirmModal.type === 'ALL' ? t.confirmDeleteAll : t.confirmDeleteOne}</p>
             <div className="flex justify-end gap-3">
-              <button 
-                onClick={() => setConfirmModal({ ...confirmModal, isOpen: false })}
-                className="px-4 py-2 bg-slate-100 text-slate-700 font-medium rounded-lg hover:bg-slate-200 transition"
-              >
-                {t.cancel}
-              </button>
-              <button 
-                onClick={confirmAction}
-                className="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition shadow-lg shadow-red-600/20"
-              >
-                {confirmModal.type === 'ALL' ? t.deleteAll : t.delete}
-              </button>
+              <button onClick={() => setConfirmModal({ ...confirmModal, isOpen: false })} className="px-4 py-2 bg-slate-100 text-slate-700 font-medium rounded-lg hover:bg-slate-200 transition">{t.cancel}</button>
+              <button onClick={confirmAction} className="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition shadow-lg shadow-red-600/20">{confirmModal.type === 'ALL' ? t.deleteAll : t.delete}</button>
             </div>
           </div>
         </div>
       )}
+
+      <footer className="w-full text-center py-8 text-slate-400 text-sm mt-12 border-t border-slate-100">
+        <div className="flex flex-col items-center gap-2">
+          <p className="flex items-center gap-1.5">
+            {t.developedBy} <span className="font-bold text-slate-600">Tiago de Amorim Silva</span>
+            <span className="text-slate-300">•</span>
+            <span className="text-slate-500">{t.role}</span>
+          </p>
+          <a href="https://linkedin.com/in/tiagodeamorimsilva" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-blue-600 hover:text-blue-800 hover:underline transition-colors font-medium">
+            <Linkedin size={14} />
+            LinkedIn
+          </a>
+        </div>
+      </footer>
     </div>
   );
 };

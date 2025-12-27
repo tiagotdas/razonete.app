@@ -7,20 +7,169 @@ import {
   CheckCircle, 
   AlertTriangle, 
   X,
-  ClipboardList // Novo ícone importado
+  ClipboardList,
+  Globe // Novo ícone para o seletor de idiomas
 } from 'lucide-react';
 
-// --- Utilitários de Formatação ---
-const formatCurrency = (value) => {
-  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+// --- Dicionário de Traduções (I18n) ---
+const TRANSLATIONS = {
+  pt: {
+    debit: 'Débito',
+    credit: 'Crédito',
+    balance: 'Saldo',
+    debitBalance: 'Saldo Devedor',
+    creditBalance: 'Saldo Credor',
+    accountName: 'Nome da Conta',
+    addEntry: 'Lançar',
+    ref: 'Ref.',
+    notes: 'Notas explicativas...',
+    deleteAccount: 'Excluir Conta',
+    deleteEntry: 'Excluir lançamento',
+    appTitle: 'Razonete Pro',
+    appSubtitle: 'O famoso gráfico em T',
+    doubleEntryOk: 'Partidas Dobradas: OK',
+    discrepancy: 'Divergência',
+    newAccount: 'Novo Razonete',
+    trialBalance: 'Balancete',
+    export: 'Exportar',
+    clearAll: 'Limpar Tudo',
+    emptyWorkspace: 'Espaço de trabalho vazio',
+    startAdding: 'Comece adicionando o seu primeiro razonete.',
+    confirmation: 'Confirmação',
+    confirmDeleteAll: 'Tem certeza que deseja apagar todos os razonetes? Todo o trabalho será perdido.',
+    confirmDeleteOne: 'Tem certeza que deseja excluir este razonete permanentemente?',
+    cancel: 'Cancelar',
+    deleteAll: 'Apagar Tudo',
+    delete: 'Excluir',
+    trialBalanceTitle: 'Balancete de Verificação',
+    trialBalanceSubtitle: 'Resumo de saldos por conta',
+    tableAccounts: 'Contas',
+    tableDebit: 'Saldo Devedor',
+    tableCredit: 'Saldo Credor',
+    totals: 'TOTAIS',
+    balanced: 'Balancete Fechado',
+    balancedMsg: 'O método das partidas dobradas foi respeitado.',
+    unbalanced: 'Divergência Encontrada',
+    unbalancedMsg: 'Há uma diferença de {diff} entre débitos e créditos.',
+    close: 'Fechar',
+    nature: 'Natureza',
+    type: 'Tipo',
+    value: 'Valor',
+    debtor: 'Devedora',
+    creditor: 'Credora'
+  },
+  en: {
+    debit: 'Debit',
+    credit: 'Credit',
+    balance: 'Balance',
+    debitBalance: 'Debit Balance',
+    creditBalance: 'Credit Balance',
+    accountName: 'Account Name',
+    addEntry: 'Add',
+    ref: 'Ref.',
+    notes: 'Explanatory notes...',
+    deleteAccount: 'Delete Account',
+    deleteEntry: 'Delete Entry',
+    appTitle: 'T-Account Pro',
+    appSubtitle: 'The famous T-chart',
+    doubleEntryOk: 'Double Entry: OK',
+    discrepancy: 'Discrepancy',
+    newAccount: 'New Account',
+    trialBalance: 'Trial Balance',
+    export: 'Export',
+    clearAll: 'Clear All',
+    emptyWorkspace: 'Empty workspace',
+    startAdding: 'Start by adding your first T-account.',
+    confirmation: 'Confirmation',
+    confirmDeleteAll: 'Are you sure you want to delete all accounts? All work will be lost.',
+    confirmDeleteOne: 'Are you sure you want to delete this account permanently?',
+    cancel: 'Cancel',
+    deleteAll: 'Delete All',
+    delete: 'Delete',
+    trialBalanceTitle: 'Trial Balance',
+    trialBalanceSubtitle: 'Account balance summary',
+    tableAccounts: 'Accounts',
+    tableDebit: 'Debit Balance',
+    tableCredit: 'Credit Balance',
+    totals: 'TOTALS',
+    balanced: 'Balanced',
+    balancedMsg: 'The double-entry method was respected.',
+    unbalanced: 'Discrepancy Found',
+    unbalancedMsg: 'There is a difference of {diff} between debits and credits.',
+    close: 'Close',
+    nature: 'Nature',
+    type: 'Type',
+    value: 'Value',
+    debtor: 'Debit',
+    creditor: 'Credit'
+  },
+  es: {
+    debit: 'Débito',
+    credit: 'Crédito',
+    balance: 'Saldo',
+    debitBalance: 'Saldo Deudor',
+    creditBalance: 'Saldo Acreedor',
+    accountName: 'Nombre de la Cuenta',
+    addEntry: 'Agregar',
+    ref: 'Ref.',
+    notes: 'Notas explicativas...',
+    deleteAccount: 'Eliminar Cuenta',
+    deleteEntry: 'Eliminar entrada',
+    appTitle: 'Razonete Pro',
+    appSubtitle: 'El famoso gráfico en T',
+    doubleEntryOk: 'Partida Doble: OK',
+    discrepancy: 'Discrepancia',
+    newAccount: 'Nueva Cuenta',
+    trialBalance: 'Balance',
+    export: 'Exportar',
+    clearAll: 'Borrar Todo',
+    emptyWorkspace: 'Espacio de trabajo vacío',
+    startAdding: 'Comience agregando su primera cuenta T.',
+    confirmation: 'Confirmación',
+    confirmDeleteAll: '¿Está seguro de que desea eliminar todas las cuentas? Todo el trabajo se perderá.',
+    confirmDeleteOne: '¿Está seguro de que desea eliminar esta cuenta permanentemente?',
+    cancel: 'Cancelar',
+    deleteAll: 'Borrar Todo',
+    delete: 'Eliminar',
+    trialBalanceTitle: 'Balance de Comprobación',
+    trialBalanceSubtitle: 'Resumen de saldos por cuenta',
+    tableAccounts: 'Cuentas',
+    tableDebit: 'Saldo Deudor',
+    tableCredit: 'Saldo Acreedor',
+    totals: 'TOTALES',
+    balanced: 'Balance Cuadrado',
+    balancedMsg: 'Se respetó el método de partida doble.',
+    unbalanced: 'Discrepancia Encontrada',
+    unbalancedMsg: 'Hay una diferencia de {diff} entre débitos y créditos.',
+    close: 'Cerrar',
+    nature: 'Naturaleza',
+    type: 'Tipo',
+    value: 'Valor',
+    debtor: 'Deudora',
+    creditor: 'Acreedora'
+  }
 };
 
-const formatNumber = (value) => {
-  return new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
+// --- Configurações de Localização ---
+const LOCALE_CONFIG = {
+  pt: { locale: 'pt-BR', currency: 'BRL' },
+  en: { locale: 'en-US', currency: 'USD' },
+  es: { locale: 'es-ES', currency: 'EUR' }
+};
+
+// --- Utilitários de Formatação Dinâmicos ---
+const formatCurrency = (value, lang = 'pt') => {
+  const config = LOCALE_CONFIG[lang];
+  return new Intl.NumberFormat(config.locale, { style: 'currency', currency: config.currency }).format(value);
+};
+
+const formatNumber = (value, lang = 'pt') => {
+  const config = LOCALE_CONFIG[lang];
+  return new Intl.NumberFormat(config.locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
 };
 
 // --- Componente: Visual do T (CSS Puro) ---
-const TAccountVisual = ({ entries, onDeleteEntry }) => {
+const TAccountVisual = ({ entries, onDeleteEntry, lang, t }) => {
   const debits = entries.filter(e => e.type === 'DEBIT');
   const credits = entries.filter(e => e.type === 'CREDIT');
 
@@ -33,8 +182,8 @@ const TAccountVisual = ({ entries, onDeleteEntry }) => {
 
       {/* Cabeçalhos */}
       <div className="flex justify-between text-xs font-bold text-slate-400 px-2 mb-2 h-6 items-center">
-        <span className="w-1/2 pl-2">Débito</span>
-        <span className="w-1/2 text-right pr-2">Crédito</span>
+        <span className="w-1/2 pl-2">{t.debit}</span>
+        <span className="w-1/2 text-right pr-2">{t.credit}</span>
       </div>
 
       {/* Área de Listas */}
@@ -47,7 +196,7 @@ const TAccountVisual = ({ entries, onDeleteEntry }) => {
                 <button 
                   onClick={() => onDeleteEntry(entry.id)}
                   className="text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-600 transition-opacity p-1"
-                  title="Excluir lançamento"
+                  title={t.deleteEntry}
                 >
                   <Trash2 size={12} />
                 </button>
@@ -56,7 +205,7 @@ const TAccountVisual = ({ entries, onDeleteEntry }) => {
                 </span>
               </div>
               <span className="text-blue-700 font-semibold text-sm tabular-nums">
-                {formatNumber(entry.value)}
+                {formatNumber(entry.value, lang)}
               </span>
             </div>
           ))}
@@ -67,13 +216,13 @@ const TAccountVisual = ({ entries, onDeleteEntry }) => {
           {credits.map(entry => (
             <div key={entry.id} className="group flex justify-end items-center py-1 border-b border-transparent hover:bg-red-50/80 rounded px-1 transition-colors">
               <span className="text-red-700 font-semibold text-sm tabular-nums">
-                {formatNumber(entry.value)}
+                {formatNumber(entry.value, lang)}
               </span>
               <div className="flex items-center gap-1 min-w-0 ml-auto pl-2 flex-row-reverse">
                 <button 
                   onClick={() => onDeleteEntry(entry.id)}
                   className="text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-600 transition-opacity p-1"
-                  title="Excluir lançamento"
+                  title={t.deleteEntry}
                 >
                   <Trash2 size={12} />
                 </button>
@@ -90,7 +239,7 @@ const TAccountVisual = ({ entries, onDeleteEntry }) => {
 };
 
 // --- Componente: Cartão do Razonete ---
-const RazoneteCard = ({ data, onUpdate, onDeleteRequest }) => {
+const RazoneteCard = ({ data, onUpdate, onDeleteRequest, lang, t }) => {
   const [inputs, setInputs] = useState({ debit: '', credit: '', ref: '' });
 
   const totals = useMemo(() => {
@@ -138,19 +287,19 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest }) => {
           value={data.title}
           onChange={(e) => onUpdate({ ...data, title: e.target.value })}
           className="text-lg font-bold text-slate-800 w-full border-b border-transparent focus:border-blue-500 outline-none placeholder-slate-400 bg-transparent"
-          placeholder="Nome da Conta"
+          placeholder={t.accountName}
         />
         <button 
           type="button"
           onClick={() => onDeleteRequest(data.id)}
           className="absolute -top-1 -right-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full p-2 transition-all z-10"
-          title="Excluir Conta"
+          title={t.deleteAccount}
         >
           <X size={18} />
         </button>
       </div>
 
-      <TAccountVisual entries={data.entries} onDeleteEntry={handleDeleteEntry} />
+      <TAccountVisual entries={data.entries} onDeleteEntry={handleDeleteEntry} lang={lang} t={t} />
 
       <div className={`
         flex justify-between items-center p-2 rounded-lg border text-sm font-bold
@@ -159,10 +308,10 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest }) => {
           : 'bg-red-50 border-red-100 text-red-800'}
       `}>
         <span className="text-xs uppercase tracking-wider opacity-80">
-          {totals.balance >= 0 ? 'Saldo Devedor' : 'Saldo Credor'}
+          {totals.balance >= 0 ? t.debitBalance : t.creditBalance}
         </span>
         <span className="text-base">
-          {formatCurrency(Math.abs(totals.balance))}
+          {formatCurrency(Math.abs(totals.balance), lang)}
         </span>
       </div>
 
@@ -201,13 +350,13 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest }) => {
             onChange={(e) => setInputs({ ...inputs, ref: e.target.value })}
             onKeyDown={handleKeyDown}
             className="w-2/3 px-3 py-2 border border-slate-200 rounded text-sm focus:border-blue-400 outline-none"
-            placeholder="Ref."
+            placeholder={t.ref}
           />
           <button 
             onClick={handleAddEntry}
             className="w-1/3 bg-slate-800 text-white rounded text-sm font-medium hover:bg-slate-700 active:scale-95 transition-all flex items-center justify-center gap-1"
           >
-            Lançar
+            {t.addEntry}
           </button>
         </div>
       </div>
@@ -216,17 +365,17 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest }) => {
         value={data.comment}
         onChange={(e) => onUpdate({ ...data, comment: e.target.value })}
         className="w-full text-xs p-2 border border-slate-200 rounded resize-y min-h-[40px] bg-slate-50 focus:bg-white focus:border-blue-400 outline-none transition-colors"
-        placeholder="Notas explicativas..."
+        placeholder={t.notes}
       />
     </div>
   );
 };
 
-// --- NOVO COMPONENTE: Modal do Balancete de Verificação ---
-const TrialBalanceModal = ({ isOpen, onClose, razonetes }) => {
+// --- Componente: Modal do Balancete de Verificação ---
+const TrialBalanceModal = ({ isOpen, onClose, razonetes, lang, t }) => {
   if (!isOpen) return null;
 
-  // Lógica de Agregação (Data Aggregation) - "Map-Reduce"
+  // Lógica de Agregação (Data Aggregation)
   const reportData = useMemo(() => {
     return razonetes.map(r => {
       const totalD = r.entries.filter(e => e.type === 'DEBIT').reduce((acc, c) => acc + c.value, 0);
@@ -239,10 +388,9 @@ const TrialBalanceModal = ({ isOpen, onClose, razonetes }) => {
         debitBalance: balance > 0 ? balance : 0,
         creditBalance: balance < 0 ? Math.abs(balance) : 0
       };
-    }).sort((a, b) => a.title.localeCompare(b.title)); // Ordenação alfabética
+    }).sort((a, b) => a.title.localeCompare(b.title));
   }, [razonetes]);
 
-  // Cálculo dos Totais do Relatório (Cross-footing)
   const totals = useMemo(() => {
     return reportData.reduce((acc, curr) => ({
       debit: acc.debit + curr.debitBalance,
@@ -262,8 +410,8 @@ const TrialBalanceModal = ({ isOpen, onClose, razonetes }) => {
               <ClipboardList size={24} />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-800">Balancete de Verificação</h2>
-              <p className="text-sm text-slate-500">Resumo de saldos por conta</p>
+              <h2 className="text-xl font-bold text-slate-800">{t.trialBalanceTitle}</h2>
+              <p className="text-sm text-slate-500">{t.trialBalanceSubtitle}</p>
             </div>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full transition-colors">
@@ -276,9 +424,9 @@ const TrialBalanceModal = ({ isOpen, onClose, razonetes }) => {
           <table className="w-full text-sm border-collapse">
             <thead>
               <tr className="bg-slate-100 text-slate-600 font-bold border-b border-slate-300">
-                <th className="py-3 px-4 text-left w-1/2">Contas</th>
-                <th className="py-3 px-4 text-right w-1/4 text-blue-700">Saldo Devedor</th>
-                <th className="py-3 px-4 text-right w-1/4 text-red-700">Saldo Credor</th>
+                <th className="py-3 px-4 text-left w-1/2">{t.tableAccounts}</th>
+                <th className="py-3 px-4 text-right w-1/4 text-blue-700">{t.tableDebit}</th>
+                <th className="py-3 px-4 text-right w-1/4 text-red-700">{t.tableCredit}</th>
               </tr>
             </thead>
             <tbody>
@@ -286,10 +434,10 @@ const TrialBalanceModal = ({ isOpen, onClose, razonetes }) => {
                 <tr key={row.id} className={`border-b border-slate-100 hover:bg-slate-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}`}>
                   <td className="py-3 px-4 font-medium text-slate-700">{row.title}</td>
                   <td className="py-3 px-4 text-right tabular-nums text-slate-600 font-medium">
-                    {row.debitBalance > 0 ? formatNumber(row.debitBalance) : '-'}
+                    {row.debitBalance > 0 ? formatNumber(row.debitBalance, lang) : '-'}
                   </td>
                   <td className="py-3 px-4 text-right tabular-nums text-slate-600 font-medium">
-                    {row.creditBalance > 0 ? formatNumber(row.creditBalance) : '-'}
+                    {row.creditBalance > 0 ? formatNumber(row.creditBalance, lang) : '-'}
                   </td>
                 </tr>
               ))}
@@ -297,12 +445,12 @@ const TrialBalanceModal = ({ isOpen, onClose, razonetes }) => {
             {/* Rodapé do Relatório (Totais) */}
             <tfoot>
               <tr className="bg-slate-100 border-t-2 border-slate-300 font-bold text-base">
-                <td className="py-4 px-4 text-slate-800">TOTAIS</td>
+                <td className="py-4 px-4 text-slate-800">{t.totals}</td>
                 <td className="py-4 px-4 text-right text-blue-700 tabular-nums">
-                  {formatNumber(totals.debit)}
+                  {formatNumber(totals.debit, lang)}
                 </td>
                 <td className="py-4 px-4 text-right text-red-700 tabular-nums">
-                  {formatNumber(totals.credit)}
+                  {formatNumber(totals.credit, lang)}
                 </td>
               </tr>
             </tfoot>
@@ -314,16 +462,16 @@ const TrialBalanceModal = ({ isOpen, onClose, razonetes }) => {
               <>
                 <CheckCircle size={24} />
                 <div>
-                  <p className="font-bold">Balancete Fechado</p>
-                  <p className="text-sm opacity-90">O método das partidas dobradas foi respeitado.</p>
+                  <p className="font-bold">{t.balanced}</p>
+                  <p className="text-sm opacity-90">{t.balancedMsg}</p>
                 </div>
               </>
             ) : (
               <>
                 <AlertTriangle size={24} />
                 <div>
-                  <p className="font-bold">Divergência Encontrada</p>
-                  <p className="text-sm opacity-90">Há uma diferença de {formatCurrency(Math.abs(totals.debit - totals.credit))} entre débitos e créditos.</p>
+                  <p className="font-bold">{t.unbalanced}</p>
+                  <p className="text-sm opacity-90">{t.unbalancedMsg.replace('{diff}', formatCurrency(Math.abs(totals.debit - totals.credit), lang))}</p>
                 </div>
               </>
             )}
@@ -336,7 +484,7 @@ const TrialBalanceModal = ({ isOpen, onClose, razonetes }) => {
             onClick={onClose}
             className="px-6 py-2 bg-slate-800 text-white font-medium rounded-lg hover:bg-slate-700 transition"
           >
-            Fechar
+            {t.close}
           </button>
         </div>
       </div>
@@ -347,7 +495,9 @@ const TrialBalanceModal = ({ isOpen, onClose, razonetes }) => {
 // --- Componente Principal App ---
 const App = () => {
   const [razonetes, setRazonetes] = useState([]);
-  const [isTrialBalanceOpen, setIsTrialBalanceOpen] = useState(false); // Estado para o modal
+  const [isTrialBalanceOpen, setIsTrialBalanceOpen] = useState(false);
+  const [currentLang, setCurrentLang] = useState('pt'); // Estado do idioma
+  const t = TRANSLATIONS[currentLang]; // Atalho para as traduções
    
   const [confirmModal, setConfirmModal] = useState({ 
     isOpen: false, 
@@ -431,14 +581,14 @@ const App = () => {
 
   const exportCSV = () => {
     let csv = "data:text/csv;charset=utf-8,\uFEFF";
-    csv += "ID_Conta;Conta;Natureza;Tipo;Valor;Referencia;Nota\n";
+    csv += `ID_${t.accountName};${t.accountName};${t.nature};${t.type};${t.value};${t.ref};Nota\n`;
     razonetes.forEach(r => {
       r.entries.forEach(e => {
         const row = [
           r.id,
           `"${r.title}"`,
-          e.type === 'DEBIT' ? 'Devedora' : 'Credora',
-          e.type === 'DEBIT' ? 'Debito' : 'Credito',
+          e.type === 'DEBIT' ? t.debtor : t.creditor,
+          e.type === 'DEBIT' ? 'Debito' : 'Credito', // Mantendo interno para consistência
           e.value.toFixed(2).replace('.', ','),
           `"${e.ref}"`,
           `"${r.comment.replace(/\n/g, ' ')}"`
@@ -461,37 +611,51 @@ const App = () => {
               <Scale size={24} weight="bold" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-900 leading-none">Razonete Pro</h1>
-              <p className="text-xs text-slate-500 mt-1">O famoso gráfico em T</p>
+              <h1 className="text-xl font-bold text-slate-900 leading-none">{t.appTitle}</h1>
+              <p className="text-xs text-slate-500 mt-1">{t.appSubtitle}</p>
             </div>
           </div>
+
           <div className={`px-4 py-2 rounded-full flex items-center gap-2 text-sm font-bold shadow-sm transition-colors ${globalStatus.isBalanced ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
             {globalStatus.isBalanced ? (
               <>
                 <CheckCircle size={18} />
-                <span>Partidas Dobradas: OK</span>
+                <span>{t.doubleEntryOk}</span>
               </>
             ) : (
               <>
                 <AlertTriangle size={18} />
-                <span>Divergência: {formatCurrency(globalStatus.diff)}</span>
+                <span>{t.discrepancy}: {formatCurrency(globalStatus.diff, currentLang)}</span>
               </>
             )}
           </div>
-          <div className="flex gap-2">
+
+          <div className="flex gap-2 items-center">
+            {/* Seletor de Idioma */}
+            <div className="relative group mr-2">
+              <button className="p-2 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-lg transition-colors flex items-center gap-1" title="Mudar Idioma">
+                <Globe size={20} />
+                <span className="text-xs font-bold uppercase">{currentLang}</span>
+              </button>
+              <div className="absolute right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-xl py-1 hidden group-hover:block w-32 z-50">
+                <button onClick={() => setCurrentLang('pt')} className={`block w-full text-left px-4 py-2 text-sm hover:bg-slate-50 ${currentLang === 'pt' ? 'font-bold text-blue-600' : 'text-slate-600'}`}>Português</button>
+                <button onClick={() => setCurrentLang('en')} className={`block w-full text-left px-4 py-2 text-sm hover:bg-slate-50 ${currentLang === 'en' ? 'font-bold text-blue-600' : 'text-slate-600'}`}>English</button>
+                <button onClick={() => setCurrentLang('es')} className={`block w-full text-left px-4 py-2 text-sm hover:bg-slate-50 ${currentLang === 'es' ? 'font-bold text-blue-600' : 'text-slate-600'}`}>Español</button>
+              </div>
+            </div>
+
             <button onClick={addRazonete} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition shadow-sm active:scale-95">
-              <Plus size={16} /> Novo Razonete
+              <Plus size={16} /> {t.newAccount}
             </button>
             
-            {/* NOVO BOTÃO: Balancete */}
             <button onClick={() => setIsTrialBalanceOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-slate-700 text-white text-sm font-semibold rounded-lg hover:bg-slate-800 transition shadow-sm active:scale-95">
-              <ClipboardList size={16} /> Balancete
+              <ClipboardList size={16} /> {t.trialBalance}
             </button>
             
             <button onClick={exportCSV} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 transition shadow-sm active:scale-95">
-              <Download size={16} /> Exportar
+              <Download size={16} /> {t.export}
             </button>
-            <button onClick={requestClearAll} className="px-3 py-2 bg-white border border-slate-300 text-slate-600 rounded-lg hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition shadow-sm" title="Limpar Tudo">
+            <button onClick={requestClearAll} className="px-3 py-2 bg-white border border-slate-300 text-slate-600 rounded-lg hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition shadow-sm" title={t.clearAll}>
               <Trash2 size={16} />
             </button>
           </div>
@@ -502,11 +666,10 @@ const App = () => {
         {razonetes.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 opacity-50">
             <Scale size={64} className="text-slate-300 mb-4" />
-            <h3 className="text-xl font-medium text-slate-500">Espaço de trabalho vazio</h3>
-            <p className="text-slate-400">Comece adicionando o seu primeiro razonete.</p>
+            <h3 className="text-xl font-medium text-slate-500">{t.emptyWorkspace}</h3>
+            <p className="text-slate-400">{t.startAdding}</p>
           </div>
         ) : (
-          /* Grid Responsivo usando auto-fill e minmax (Corrigido anteriormente) */
           <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-6 items-start">
             {razonetes.map(razonete => (
               <RazoneteCard 
@@ -514,17 +677,20 @@ const App = () => {
                 data={razonete} 
                 onUpdate={updateRazonete} 
                 onDeleteRequest={requestDelete}
+                lang={currentLang}
+                t={t}
               />
             ))}
           </div>
         )}
       </main>
 
-      {/* Renderização do Balancete */}
       <TrialBalanceModal 
         isOpen={isTrialBalanceOpen} 
         onClose={() => setIsTrialBalanceOpen(false)} 
         razonetes={razonetes} 
+        lang={currentLang}
+        t={t}
       />
 
       {confirmModal.isOpen && (
@@ -532,25 +698,25 @@ const App = () => {
           <div className="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full animate-in fade-in zoom-in duration-200">
             <div className="flex items-center gap-3 text-amber-500 mb-4">
               <AlertTriangle size={24} />
-              <h3 className="text-lg font-bold text-slate-800">Confirmação</h3>
+              <h3 className="text-lg font-bold text-slate-800">{t.confirmation}</h3>
             </div>
             <p className="text-slate-600 mb-6 text-sm leading-relaxed">
               {confirmModal.type === 'ALL' 
-                ? 'Tem certeza que deseja apagar todos os razonetes? Todo o trabalho será perdido.' 
-                : 'Tem certeza que deseja excluir este razonete permanentemente?'}
+                ? t.confirmDeleteAll 
+                : t.confirmDeleteOne}
             </p>
             <div className="flex justify-end gap-3">
               <button 
                 onClick={() => setConfirmModal({ ...confirmModal, isOpen: false })}
                 className="px-4 py-2 bg-slate-100 text-slate-700 font-medium rounded-lg hover:bg-slate-200 transition"
               >
-                Cancelar
+                {t.cancel}
               </button>
               <button 
                 onClick={confirmAction}
                 className="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition shadow-lg shadow-red-600/20"
               >
-                {confirmModal.type === 'ALL' ? 'Apagar Tudo' : 'Excluir'}
+                {confirmModal.type === 'ALL' ? t.deleteAll : t.delete}
               </button>
             </div>
           </div>

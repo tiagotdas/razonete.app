@@ -19,7 +19,10 @@ import {
   Check,
   Folder,
   FolderPlus,
-  ChevronDown
+  ChevronDown,
+  MoreHorizontal, // Novo ícone para o menu "Mais Opções"
+  Settings,       // Ícone para configurações
+  Eraser          // Ícone para Limpar
 } from 'lucide-react';
 
 // --- Dicionário de Traduções (I18n) ---
@@ -42,7 +45,7 @@ const TRANSLATIONS = {
     discrepancy: 'Divergência',
     newAccount: 'Novo Razonete',
     trialBalance: 'Balancete',
-    export: 'Exportar',
+    export: 'Exportar CSV',
     clearAll: 'Limpar Tudo',
     emptyWorkspace: 'Espaço de trabalho vazio',
     emptyArchived: 'Nenhum razonete arquivado',
@@ -82,7 +85,7 @@ const TRANSLATIONS = {
     startDate: 'Data Inicial',
     endDate: 'Data Final',
     filter: 'Filtrar',
-    supportProject: 'Apoiar / Obter Manual',
+    supportProject: 'Apoiar Projeto',
     supportTitle: 'Apoie o Razonete Pro',
     supportDesc: 'Esta ferramenta é gratuita. Se ela ajuda no seu trabalho ou estudos, considere fazer um Pix de qualquer valor.',
     bonusText: '🎁 Bônus: Envie o comprovante para o LinkedIn do autor e receba o "Guia Prático de Auditoria Digital com Razonete Pro" em PDF.',
@@ -97,11 +100,13 @@ const TRANSLATIONS = {
     deleteProject: 'Excluir Projeto',
     confirmDeleteProject: 'Tem certeza? Isso apagará o projeto e todos os razonetes dentro dele.',
     defaultProject: 'Geral (Principal)',
-    inProject: 'em' // Usado no status: Partidas Dobradas em "Nome do Projeto"
+    inProject: 'em',
+    moreOptions: 'Mais Opções',
+    language: 'Idioma'
   },
   en: {
-    debit: 'Debit', credit: 'Credit', balance: 'Balance', debitBalance: 'Debit Balance', creditBalance: 'Credit Balance', accountName: 'Account Name', addEntry: 'Add', ref: 'Ref.', notes: 'Explanatory notes...', deleteAccount: 'Delete Account', deleteEntry: 'Delete Entry', appTitle: 'T-Account Pro', appSubtitle: 'The famous T-chart', doubleEntryOk: 'Double Entry: OK', discrepancy: 'Discrepancy', newAccount: 'New Account', trialBalance: 'Trial Balance', export: 'Export', clearAll: 'Clear All', emptyWorkspace: 'Empty workspace', emptyArchived: 'No archived accounts', startAdding: 'Start by adding your first T-account.', confirmation: 'Confirmation', confirmDeleteAll: 'Are you sure you want to delete all visible accounts? All work will be lost.', confirmDeleteOne: 'Are you sure you want to delete this account permanently?', cancel: 'Cancel', deleteAll: 'Delete All', delete: 'Delete', trialBalanceTitle: 'Trial Balance', trialBalanceSubtitle: 'Account balance summary (Visible)', tableAccounts: 'Accounts', tableDebit: 'Debit Balance', tableCredit: 'Credit Balance', totals: 'TOTALS', balanced: 'Balanced', balancedMsg: 'The double-entry method was respected.', unbalanced: 'Discrepancy Found', unbalancedMsg: 'There is a difference of {diff} between debits and credits.', close: 'Close', nature: 'Nature', type: 'Type', value: 'Value', debtor: 'Debit', creditor: 'Credit', archive: 'Archive', unarchive: 'Unarchive', showArchived: 'Show Archived', showActive: 'Show Active', archivedView: 'Archive Mode', exportExcel: 'Export to Excel', developedBy: 'Developed by', role: 'Contador & Data Scientist', date: 'Date', period: 'Period', startDate: 'Start Date', endDate: 'End Date', filter: 'Filter',
-    supportProject: 'Support / Get Guide',
+    debit: 'Debit', credit: 'Credit', balance: 'Balance', debitBalance: 'Debit Balance', creditBalance: 'Credit Balance', accountName: 'Account Name', addEntry: 'Add', ref: 'Ref.', notes: 'Explanatory notes...', deleteAccount: 'Delete Account', deleteEntry: 'Delete Entry', appTitle: 'T-Account Pro', appSubtitle: 'The famous T-chart', doubleEntryOk: 'Double Entry: OK', discrepancy: 'Discrepancy', newAccount: 'New Account', trialBalance: 'Trial Balance', export: 'Export CSV', clearAll: 'Clear All', emptyWorkspace: 'Empty workspace', emptyArchived: 'No archived accounts', startAdding: 'Start by adding your first T-account.', confirmation: 'Confirmation', confirmDeleteAll: 'Are you sure you want to delete all visible accounts? All work will be lost.', confirmDeleteOne: 'Are you sure you want to delete this account permanently?', cancel: 'Cancel', deleteAll: 'Delete All', delete: 'Delete', trialBalanceTitle: 'Trial Balance', trialBalanceSubtitle: 'Account balance summary (Visible)', tableAccounts: 'Accounts', tableDebit: 'Debit Balance', tableCredit: 'Credit Balance', totals: 'TOTALS', balanced: 'Balanced', balancedMsg: 'The double-entry method was respected.', unbalanced: 'Discrepancy Found', unbalancedMsg: 'There is a difference of {diff} between debits and credits.', close: 'Close', nature: 'Nature', type: 'Type', value: 'Value', debtor: 'Debit', creditor: 'Credit', archive: 'Archive', unarchive: 'Unarchive', showArchived: 'Show Archived', showActive: 'Show Active', archivedView: 'Archive Mode', exportExcel: 'Export to Excel', developedBy: 'Developed by', role: 'Contador & Data Scientist', date: 'Date', period: 'Period', startDate: 'Start Date', endDate: 'End Date', filter: 'Filter',
+    supportProject: 'Support Project',
     supportTitle: 'Support Razonete Pro',
     supportDesc: 'This tool is free. If it helps you, consider donating.',
     bonusText: '🎁 Bonus: Send the receipt to the author\'s LinkedIn to get the "Digital Audit Guide" PDF.',
@@ -116,11 +121,13 @@ const TRANSLATIONS = {
     deleteProject: 'Delete Project',
     confirmDeleteProject: 'Are you sure? This will delete the project and all accounts within it.',
     defaultProject: 'General (Main)',
-    inProject: 'in'
+    inProject: 'in',
+    moreOptions: 'More Options',
+    language: 'Language'
   },
   es: {
-    debit: 'Débito', credit: 'Crédito', balance: 'Saldo', debitBalance: 'Saldo Deudor', creditBalance: 'Saldo Acreedor', accountName: 'Nombre de la Cuenta', addEntry: 'Agregar', ref: 'Ref.', notes: 'Notas explicativas...', deleteAccount: 'Eliminar Cuenta', deleteEntry: 'Eliminar entrada', appTitle: 'Razonete Pro', appSubtitle: 'El famoso gráfico en T', doubleEntryOk: 'Partida Doble: OK', discrepancy: 'Discrepancia', newAccount: 'Nueva Cuenta', trialBalance: 'Balance', export: 'Exportar', clearAll: 'Borrar Todo', emptyWorkspace: 'Espacio de trabajo vacío', emptyArchived: 'No hay cuentas archivadas', startAdding: 'Comience agregando su primera cuenta T.', confirmation: 'Confirmación', confirmDeleteAll: '¿Está seguro de que desea eliminar todas las cuentas visibles? Todo el trabajo se perderá.', confirmDeleteOne: '¿Está seguro de que desea eliminar esta cuenta permanentemente?', cancel: 'Cancelar', deleteAll: 'Borrar Todo', delete: 'Eliminar', trialBalanceTitle: 'Balance de Comprobación', trialBalanceSubtitle: 'Resumen de saldos por cuenta (Visibles)', tableAccounts: 'Cuentas', tableDebit: 'Saldo Deudor', tableCredit: 'Saldo Acreedor', totals: 'TOTALES', balanced: 'Balance Cuadrado', balancedMsg: 'Se respetó el método de partida doble.', unbalanced: 'Discrepancia Encontrada', unbalancedMsg: 'Hay una diferencia de {diff} entre débitos y créditos.', close: 'Cerrar', nature: 'Naturaleza', type: 'Tipo', value: 'Valor', debtor: 'Deudora', creditor: 'Acreedora', archive: 'Archivar', unarchive: 'Desarchivar', showArchived: 'Ver Archivados', showActive: 'Ver Activos', archivedView: 'Modo Archivo', exportExcel: 'Exportar a Excel', developedBy: 'Desarrollado por', role: 'Contador & Científico de Datos', date: 'Fecha', period: 'Período', startDate: 'Fecha Inicio', endDate: 'Fecha Fin', filter: 'Filtrar',
-    supportProject: 'Apoyar / Obtener Guía',
+    debit: 'Débito', credit: 'Crédito', balance: 'Saldo', debitBalance: 'Saldo Deudor', creditBalance: 'Saldo Acreedor', accountName: 'Nombre de la Cuenta', addEntry: 'Agregar', ref: 'Ref.', notes: 'Notas explicativas...', deleteAccount: 'Eliminar Cuenta', deleteEntry: 'Eliminar entrada', appTitle: 'Razonete Pro', appSubtitle: 'El famoso gráfico en T', doubleEntryOk: 'Partida Doble: OK', discrepancy: 'Discrepancia', newAccount: 'Nueva Cuenta', trialBalance: 'Balance', export: 'Exportar CSV', clearAll: 'Borrar Todo', emptyWorkspace: 'Espacio de trabajo vacío', emptyArchived: 'No hay cuentas archivadas', startAdding: 'Comience agregando su primera cuenta T.', confirmation: 'Confirmación', confirmDeleteAll: '¿Está seguro de que desea eliminar todas las cuentas visibles? Todo el trabajo se perderá.', confirmDeleteOne: '¿Está seguro de que desea eliminar esta cuenta permanentemente?', cancel: 'Cancelar', deleteAll: 'Borrar Todo', delete: 'Eliminar', trialBalanceTitle: 'Balance de Comprobación', trialBalanceSubtitle: 'Resumen de saldos por cuenta (Visibles)', tableAccounts: 'Cuentas', tableDebit: 'Saldo Deudor', tableCredit: 'Saldo Acreedor', totals: 'TOTALES', balanced: 'Balance Cuadrado', balancedMsg: 'Se respetó el método de partida doble.', unbalanced: 'Discrepancia Encontrada', unbalancedMsg: 'Hay una diferencia de {diff} entre débitos y créditos.', close: 'Cerrar', nature: 'Naturaleza', type: 'Tipo', value: 'Valor', debtor: 'Deudora', creditor: 'Acreedora', archive: 'Archivar', unarchive: 'Desarchivar', showArchived: 'Ver Archivados', showActive: 'Ver Activos', archivedView: 'Modo Archivo', exportExcel: 'Exportar a Excel', developedBy: 'Desarrollado por', role: 'Contador & Científico de Datos', date: 'Fecha', period: 'Período', startDate: 'Fecha Inicio', endDate: 'Fecha Fin', filter: 'Filtrar',
+    supportProject: 'Apoyar Proyecto',
     supportTitle: 'Apoye Razonete Pro',
     supportDesc: 'Esta herramienta es gratuita. Considere donar si le es útil.',
     bonusText: '🎁 Bono: Envíe el recibo al LinkedIn del autor para recibir la "Guía de Auditoría Digital" en PDF.',
@@ -135,7 +142,9 @@ const TRANSLATIONS = {
     deleteProject: 'Eliminar Proyecto',
     confirmDeleteProject: '¿Seguro? Esto eliminará el proyecto y todas sus cuentas.',
     defaultProject: 'General (Principal)',
-    inProject: 'en'
+    inProject: 'en',
+    moreOptions: 'Más Opciones',
+    language: 'Idioma'
   }
 };
 
@@ -478,6 +487,60 @@ const ProjectManager = ({ projects, currentProjectId, onChangeProject, onCreateP
   );
 };
 
+// --- NOVO COMPONENTE: MENU DE MAIS OPÇÕES ---
+const MoreOptionsMenu = ({ onExport, onClear, onChangeLang, currentLang, t }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center justify-center p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition"
+        title={t.moreOptions}
+      >
+        <MoreHorizontal size={20} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-xl border border-slate-200 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          <div className="py-1">
+            {/* Language Selector in Menu */}
+            <div className="px-4 py-2 border-b border-slate-100">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">{t.language}</span>
+              <div className="flex gap-1">
+                {['pt', 'en', 'es'].map(lang => (
+                  <button 
+                    key={lang}
+                    onClick={() => { onChangeLang(lang); setIsOpen(false); }}
+                    className={`flex-1 text-xs py-1 rounded border ${currentLang === lang ? 'bg-blue-50 border-blue-200 text-blue-700 font-bold' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                  >
+                    {lang.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button 
+              onClick={() => { onExport(); setIsOpen(false); }}
+              className="w-full text-left px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 flex items-center gap-2"
+            >
+              <Download size={16} /> {t.export}
+            </button>
+            
+            <button 
+              onClick={() => { onClear(); setIsOpen(false); }}
+              className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+            >
+              <Eraser size={16} /> {t.clearAll}
+            </button>
+          </div>
+        </div>
+      )}
+      {isOpen && <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)}></div>}
+    </div>
+  );
+};
+
 const App = () => {
   const [razonetes, setRazonetes] = useState([]);
   const [projects, setProjects] = useState([{ id: 'default', name: 'Geral (Principal)' }]);
@@ -523,16 +586,14 @@ const App = () => {
   useEffect(() => { localStorage.setItem('razonetes_react_v1', JSON.stringify(razonetes)); }, [razonetes]);
   useEffect(() => { localStorage.setItem('razonetes_projects_v1', JSON.stringify(projects)); }, [projects]);
 
-  // --- FILTRO DE DADOS POR PROJETO ---
   const currentProjectRazonetes = useMemo(() => {
-    return razonetes.filter(r => r.projectId === currentProjectId); // REGRA DE NEGÓCIO: Apenas projeto atual
+    return razonetes.filter(r => r.projectId === currentProjectId); 
   }, [razonetes, currentProjectId]);
 
   const visibleRazonetes = useMemo(() => {
     return currentProjectRazonetes.filter(r => showArchived ? r.archived : !r.archived);
   }, [currentProjectRazonetes, showArchived]);
 
-  // --- STATUS GLOBAL VALIDADO POR PROJETO ---
   const globalStatus = useMemo(() => {
     let totalD = 0;
     let totalC = 0;
@@ -586,7 +647,6 @@ const App = () => {
     const currentProjectName = projects.find(p => p.id === currentProjectId)?.name || 'Projeto';
     csv += `Projeto;ID_${t.accountName};${t.accountName};Status;${t.nature};${t.type};${t.value};${t.ref};${t.date};Nota\n`;
     
-    // REGRA DE NEGÓCIO: Exportar apenas razonetes do projeto atual
     const projectRazonetes = razonetes.filter(r => r.projectId === currentProjectId);
 
     projectRazonetes.forEach(r => {
@@ -632,34 +692,44 @@ const App = () => {
             <ProjectManager projects={projects} currentProjectId={currentProjectId} onChangeProject={setCurrentProjectId} onCreateProject={handleCreateProject} onDeleteProject={handleDeleteProjectRequest} t={t} />
           </div>
 
-          {/* STATUS GLOBAL (VALIDAÇÃO POR PROJETO) */}
           <div className={`px-4 py-2 rounded-full flex items-center gap-2 text-sm font-bold shadow-sm transition-colors ${globalStatus.isBalanced ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
             {globalStatus.isBalanced ? (
               <><CheckCircle size={18} /><span>{t.doubleEntryOk}</span></>
             ) : (
               <><AlertTriangle size={18} /><span>{t.discrepancy}: {formatCurrency(globalStatus.diff, currentLang)}</span></>
             )}
-            {/* Indicador Visual do Projeto Validado */}
             <span className="ml-1 text-xs opacity-60 font-normal border-l border-current pl-2">
               {projects.find(p => p.id === currentProjectId)?.name}
             </span>
           </div>
 
           <div className="flex gap-2 items-center flex-wrap justify-end">
-            <div className="relative group mr-2">
-              <button className="p-2 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-lg transition-colors flex items-center gap-1" title="Mudar Idioma"><Globe size={20} /><span className="text-xs font-bold uppercase">{currentLang}</span></button>
-              <div className="absolute right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-xl py-1 hidden group-hover:block w-32 z-50">
-                <button onClick={() => setCurrentLang('pt')} className={`block w-full text-left px-4 py-2 text-sm hover:bg-slate-50 ${currentLang === 'pt' ? 'font-bold text-blue-600' : 'text-slate-600'}`}>Português</button>
-                <button onClick={() => setCurrentLang('en')} className={`block w-full text-left px-4 py-2 text-sm hover:bg-slate-50 ${currentLang === 'en' ? 'font-bold text-blue-600' : 'text-slate-600'}`}>English</button>
-                <button onClick={() => setCurrentLang('es')} className={`block w-full text-left px-4 py-2 text-sm hover:bg-slate-50 ${currentLang === 'es' ? 'font-bold text-blue-600' : 'text-slate-600'}`}>Español</button>
-              </div>
-            </div>
-            <button onClick={() => setIsDonationOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white text-sm font-semibold rounded-lg hover:bg-amber-600 transition shadow-sm active:scale-95 border-b-2 border-amber-600"><Coffee size={16} /><span className="hidden sm:inline">{t.supportProject}</span></button>
-            <button onClick={() => setShowArchived(!showArchived)} className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition shadow-sm active:scale-95 ${showArchived ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-50'}`}>{showArchived ? <Scale size={16} /> : <Archive size={16} />}{showArchived ? t.showActive : t.showArchived}</button>
-            <button onClick={addRazonete} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition shadow-sm active:scale-95"><Plus size={16} /> {t.newAccount}</button>
-            <button onClick={() => setIsTrialBalanceOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-slate-700 text-white text-sm font-semibold rounded-lg hover:bg-slate-800 transition shadow-sm active:scale-95"><ClipboardList size={16} /> {t.trialBalance}</button>
-            <button onClick={exportCSV} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 transition shadow-sm active:scale-95"><Download size={16} /> {t.export}</button>
-            <button onClick={requestClearAll} className="px-3 py-2 bg-white border border-slate-300 text-slate-600 rounded-lg hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition shadow-sm" title={t.clearAll}><Trash2 size={16} /></button>
+            <button onClick={() => setIsDonationOpen(true)} className="flex items-center gap-2 px-3 py-2 bg-amber-100 text-amber-700 text-sm font-semibold rounded-lg hover:bg-amber-200 transition shadow-sm border border-amber-200">
+              <Coffee size={16} /> 
+              <span className="hidden sm:inline">{t.supportProject}</span>
+            </button>
+
+            <button onClick={() => setShowArchived(!showArchived)} className={`flex items-center gap-2 px-3 py-2 text-sm font-semibold rounded-lg transition shadow-sm active:scale-95 ${showArchived ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-50'}`}>
+              {showArchived ? <Scale size={16} /> : <Archive size={16} />} 
+              {showArchived ? t.showActive : t.showArchived}
+            </button>
+
+            <button onClick={addRazonete} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition shadow-sm active:scale-95 shadow-blue-600/20">
+              <Plus size={16} /> <span className="hidden sm:inline">{t.newAccount}</span>
+            </button>
+            
+            <button onClick={() => setIsTrialBalanceOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white text-sm font-semibold rounded-lg hover:bg-slate-900 transition shadow-sm active:scale-95">
+              <ClipboardList size={16} /> <span className="hidden sm:inline">{t.trialBalance}</span>
+            </button>
+
+            {/* Menu "Mais Opções" (Settings, Lang, Clear) */}
+            <MoreOptionsMenu 
+              onExport={exportCSV} 
+              onClear={requestClearAll} 
+              onChangeLang={setCurrentLang} 
+              currentLang={currentLang} 
+              t={t} 
+            />
           </div>
         </div>
       </header>

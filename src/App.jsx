@@ -13,7 +13,10 @@ import {
   ArchiveRestore,
   FileSpreadsheet,
   Linkedin,
-  Calendar // Novo ícone para datas
+  Calendar,
+  Coffee, 
+  Copy,   
+  Check   
 } from 'lucide-react';
 
 // --- Dicionário de Traduções (I18n) ---
@@ -75,136 +78,46 @@ const TRANSLATIONS = {
     period: 'Período',
     startDate: 'Data Inicial',
     endDate: 'Data Final',
-    filter: 'Filtrar'
+    filter: 'Filtrar',
+    supportProject: 'Apoiar / Obter Manual',
+    supportTitle: 'Apoie o Razonete Pro',
+    supportDesc: 'Esta ferramenta é gratuita. Se ela ajuda no seu trabalho ou estudos, considere fazer um Pix de qualquer valor.',
+    bonusText: '🎁 Bônus: Envie o comprovante para o LinkedIn do autor e receba o "Guia Prático de Auditoria Digital com Razonete Pro" em PDF.',
+    pixKey: 'Chave Pix (E-mail):',
+    copy: 'Copiar',
+    copied: 'Copiado!',
+    bankName: 'Banco: Nubank (Nu Pagamentos)' // Ajustado para Nubank com base no código 260 do Pix Payload, se for outro, edite aqui.
   },
   en: {
-    debit: 'Debit',
-    credit: 'Credit',
-    balance: 'Balance',
-    debitBalance: 'Debit Balance',
-    creditBalance: 'Credit Balance',
-    accountName: 'Account Name',
-    addEntry: 'Add',
-    ref: 'Ref.',
-    notes: 'Explanatory notes...',
-    deleteAccount: 'Delete Account',
-    deleteEntry: 'Delete Entry',
-    appTitle: 'T-Account Pro',
-    appSubtitle: 'The famous T-chart',
-    doubleEntryOk: 'Double Entry: OK',
-    discrepancy: 'Discrepancy',
-    newAccount: 'New Account',
-    trialBalance: 'Trial Balance',
-    export: 'Export',
-    clearAll: 'Clear All',
-    emptyWorkspace: 'Empty workspace',
-    emptyArchived: 'No archived accounts',
-    startAdding: 'Start by adding your first T-account.',
-    confirmation: 'Confirmation',
-    confirmDeleteAll: 'Are you sure you want to delete all visible accounts? All work will be lost.',
-    confirmDeleteOne: 'Are you sure you want to delete this account permanently?',
-    cancel: 'Cancel',
-    deleteAll: 'Delete All',
-    delete: 'Delete',
-    trialBalanceTitle: 'Trial Balance',
-    trialBalanceSubtitle: 'Account balance summary (Visible)',
-    tableAccounts: 'Accounts',
-    tableDebit: 'Debit Balance',
-    tableCredit: 'Credit Balance',
-    totals: 'TOTALS',
-    balanced: 'Balanced',
-    balancedMsg: 'The double-entry method was respected.',
-    unbalanced: 'Discrepancy Found',
-    unbalancedMsg: 'There is a difference of {diff} between debits and credits.',
-    close: 'Close',
-    nature: 'Nature',
-    type: 'Type',
-    value: 'Value',
-    debtor: 'Debit',
-    creditor: 'Credit',
-    archive: 'Archive',
-    unarchive: 'Unarchive',
-    showArchived: 'Show Archived',
-    showActive: 'Show Active',
-    archivedView: 'Archive Mode',
-    exportExcel: 'Export to Excel',
-    developedBy: 'Developed by',
-    role: 'Auditor & Data Scientist',
-    date: 'Date',
-    period: 'Period',
-    startDate: 'Start Date',
-    endDate: 'End Date',
-    filter: 'Filter'
+    debit: 'Debit', credit: 'Credit', balance: 'Balance', debitBalance: 'Debit Balance', creditBalance: 'Credit Balance', accountName: 'Account Name', addEntry: 'Add', ref: 'Ref.', notes: 'Explanatory notes...', deleteAccount: 'Delete Account', deleteEntry: 'Delete Entry', appTitle: 'T-Account Pro', appSubtitle: 'The famous T-chart', doubleEntryOk: 'Double Entry: OK', discrepancy: 'Discrepancy', newAccount: 'New Account', trialBalance: 'Trial Balance', export: 'Export', clearAll: 'Clear All', emptyWorkspace: 'Empty workspace', emptyArchived: 'No archived accounts', startAdding: 'Start by adding your first T-account.', confirmation: 'Confirmation', confirmDeleteAll: 'Are you sure you want to delete all visible accounts? All work will be lost.', confirmDeleteOne: 'Are you sure you want to delete this account permanently?', cancel: 'Cancel', deleteAll: 'Delete All', delete: 'Delete', trialBalanceTitle: 'Trial Balance', trialBalanceSubtitle: 'Account balance summary (Visible)', tableAccounts: 'Accounts', tableDebit: 'Debit Balance', tableCredit: 'Credit Balance', totals: 'TOTALS', balanced: 'Balanced', balancedMsg: 'The double-entry method was respected.', unbalanced: 'Discrepancy Found', unbalancedMsg: 'There is a difference of {diff} between debits and credits.', close: 'Close', nature: 'Nature', type: 'Type', value: 'Value', debtor: 'Debit', creditor: 'Credit', archive: 'Archive', unarchive: 'Unarchive', showArchived: 'Show Archived', showActive: 'Show Active', archivedView: 'Archive Mode', exportExcel: 'Export to Excel', developedBy: 'Developed by', role: 'Auditor & Data Scientist', date: 'Date', period: 'Period', startDate: 'Start Date', endDate: 'End Date', filter: 'Filter',
+    supportProject: 'Support / Get Guide',
+    supportTitle: 'Support Razonete Pro',
+    supportDesc: 'This tool is free. If it helps you, consider donating.',
+    bonusText: '🎁 Bonus: Send the receipt to the author\'s LinkedIn to get the "Digital Audit Guide" PDF.',
+    pixKey: 'Pix Key (Email):',
+    copy: 'Copy',
+    copied: 'Copied!',
+    bankName: 'Bank: Nubank'
   },
   es: {
-    debit: 'Débito',
-    credit: 'Crédito',
-    balance: 'Saldo',
-    debitBalance: 'Saldo Deudor',
-    creditBalance: 'Saldo Acreedor',
-    accountName: 'Nombre de la Cuenta',
-    addEntry: 'Agregar',
-    ref: 'Ref.',
-    notes: 'Notas explicativas...',
-    deleteAccount: 'Eliminar Cuenta',
-    deleteEntry: 'Eliminar entrada',
-    appTitle: 'Razonete Pro',
-    appSubtitle: 'El famoso gráfico en T',
-    doubleEntryOk: 'Partida Doble: OK',
-    discrepancy: 'Discrepancia',
-    newAccount: 'Nueva Cuenta',
-    trialBalance: 'Balance',
-    export: 'Exportar',
-    clearAll: 'Borrar Todo',
-    emptyWorkspace: 'Espacio de trabajo vacío',
-    emptyArchived: 'No hay cuentas archivadas',
-    startAdding: 'Comience agregando su primera cuenta T.',
-    confirmation: 'Confirmación',
-    confirmDeleteAll: '¿Está seguro de que desea eliminar todas las cuentas visibles? Todo el trabajo se perderá.',
-    confirmDeleteOne: '¿Está seguro de que desea eliminar esta cuenta permanentemente?',
-    cancel: 'Cancelar',
-    deleteAll: 'Borrar Todo',
-    delete: 'Eliminar',
-    trialBalanceTitle: 'Balance de Comprobación',
-    trialBalanceSubtitle: 'Resumen de saldos por cuenta (Visibles)',
-    tableAccounts: 'Cuentas',
-    tableDebit: 'Saldo Deudor',
-    tableCredit: 'Saldo Acreedor',
-    totals: 'TOTALES',
-    balanced: 'Balance Cuadrado',
-    balancedMsg: 'Se respetó el método de partida doble.',
-    unbalanced: 'Discrepancia Encontrada',
-    unbalancedMsg: 'Hay una diferencia de {diff} entre débitos y créditos.',
-    close: 'Cerrar',
-    nature: 'Naturaleza',
-    type: 'Tipo',
-    value: 'Valor',
-    debtor: 'Deudora',
-    creditor: 'Acreedora',
-    archive: 'Archivar',
-    unarchive: 'Desarchivar',
-    showArchived: 'Ver Archivados',
-    showActive: 'Ver Activos',
-    archivedView: 'Modo Archivo',
-    exportExcel: 'Exportar a Excel',
-    developedBy: 'Desarrollado por',
-    role: 'Auditor & Científico de Datos',
-    date: 'Fecha',
-    period: 'Período',
-    startDate: 'Fecha Inicio',
-    endDate: 'Fecha Fin',
-    filter: 'Filtrar'
+    debit: 'Débito', credit: 'Crédito', balance: 'Saldo', debitBalance: 'Saldo Deudor', creditBalance: 'Saldo Acreedor', accountName: 'Nombre de la Cuenta', addEntry: 'Agregar', ref: 'Ref.', notes: 'Notas explicativas...', deleteAccount: 'Eliminar Cuenta', deleteEntry: 'Eliminar entrada', appTitle: 'Razonete Pro', appSubtitle: 'El famoso gráfico en T', doubleEntryOk: 'Partida Doble: OK', discrepancy: 'Discrepancia', newAccount: 'Nueva Cuenta', trialBalance: 'Balance', export: 'Exportar', clearAll: 'Borrar Todo', emptyWorkspace: 'Espacio de trabajo vacío', emptyArchived: 'No hay cuentas archivadas', startAdding: 'Comience agregando su primera cuenta T.', confirmation: 'Confirmación', confirmDeleteAll: '¿Está seguro de que desea eliminar todas las cuentas visibles? Todo el trabajo se perderá.', confirmDeleteOne: '¿Está seguro de que desea eliminar esta cuenta permanentemente?', cancel: 'Cancelar', deleteAll: 'Borrar Todo', delete: 'Eliminar', trialBalanceTitle: 'Balance de Comprobación', trialBalanceSubtitle: 'Resumen de saldos por cuenta (Visibles)', tableAccounts: 'Cuentas', tableDebit: 'Saldo Deudor', tableCredit: 'Saldo Acreedor', totals: 'TOTALES', balanced: 'Balance Cuadrado', balancedMsg: 'Se respetó el método de partida doble.', unbalanced: 'Discrepancia Encontrada', unbalancedMsg: 'Hay una diferencia de {diff} entre débitos y créditos.', close: 'Cerrar', nature: 'Naturaleza', type: 'Tipo', value: 'Valor', debtor: 'Deudora', creditor: 'Acreedora', archive: 'Archivar', unarchive: 'Desarchivar', showArchived: 'Ver Archivados', showActive: 'Ver Activos', archivedView: 'Modo Archivo', exportExcel: 'Exportar a Excel', developedBy: 'Desarrollado por', role: 'Auditor & Científico de Datos', date: 'Fecha', period: 'Período', startDate: 'Fecha Inicio', endDate: 'Fecha Fin', filter: 'Filtrar',
+    supportProject: 'Apoyar / Obtener Guía',
+    supportTitle: 'Apoye Razonete Pro',
+    supportDesc: 'Esta herramienta es gratuita. Considere donar si le es útil.',
+    bonusText: '🎁 Bono: Envíe el recibo al LinkedIn del autor para recibir la "Guía de Auditoría Digital" en PDF.',
+    pixKey: 'Llave Pix (Email):',
+    copy: 'Copiar',
+    copied: '¡Copiado!',
+    bankName: 'Banco: Nubank'
   }
 };
 
-// --- Configurações de Localização ---
 const LOCALE_CONFIG = {
   pt: { locale: 'pt-BR', currency: 'BRL' },
   en: { locale: 'en-US', currency: 'USD' },
   es: { locale: 'es-ES', currency: 'EUR' }
 };
 
-// --- Utilitários ---
 const formatCurrency = (value, lang = 'pt') => {
   const config = LOCALE_CONFIG[lang];
   return new Intl.NumberFormat(config.locale, { style: 'currency', currency: config.currency }).format(value);
@@ -215,14 +128,19 @@ const formatNumber = (value, lang = 'pt') => {
   return new Intl.NumberFormat(config.locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
 };
 
-// Helper para formatar data ISO (YYYY-MM-DD) para local (DD/MM) na visualização
 const formatDateShort = (isoDate) => {
   if (!isoDate) return '';
   const [year, month, day] = isoDate.split('-');
   return `${day}/${month}`;
 };
 
-// --- Componente: Visual do T (CSS Puro) ---
+// --- CONSTANTES DE DOAÇÃO (PIX) ATUALIZADAS ---
+const PIX_KEY = "tiago7.amorim@gmail.com"; 
+// Payload EMVCo completo para gerar o QR Code correto
+const PIX_PAYLOAD = "00020126450014BR.GOV.BCB.PIX0123tiago7.amorim@gmail.com5204000053039865802BR5921Tiago de Amorim Silva6009SAO PAULO62140510RmsnKreSgc63040778";
+// URL da API que gera a imagem baseada no payload
+const QR_CODE_URL = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(PIX_PAYLOAD);
+
 const TAccountVisual = ({ entries, onDeleteEntry, lang, t }) => {
   const debits = entries.filter(e => e.type === 'DEBIT');
   const credits = entries.filter(e => e.type === 'CREDIT');
@@ -301,9 +219,7 @@ const TAccountVisual = ({ entries, onDeleteEntry, lang, t }) => {
   );
 };
 
-// --- Componente: Cartão do Razonete ---
 const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t }) => {
-  // Inicializa a data com o dia de hoje (YYYY-MM-DD)
   const today = new Date().toISOString().split('T')[0];
   const [inputs, setInputs] = useState({ debit: '', credit: '', ref: '', date: today });
 
@@ -316,7 +232,7 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t }) =
   const handleAddEntry = () => {
     const newEntries = [...data.entries];
     const ref = inputs.ref.trim();
-    const date = inputs.date; // Captura a data
+    const date = inputs.date;
     let added = false;
 
     const createEntry = (type, value) => ({
@@ -324,7 +240,7 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t }) =
       type,
       value: parseFloat(value),
       ref,
-      date // Persiste a data
+      date
     });
 
     if (inputs.debit && parseFloat(inputs.debit) > 0) {
@@ -338,7 +254,6 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t }) =
 
     if (added) {
       onUpdate({ ...data, entries: newEntries });
-      // Mantém a data de hoje para o próximo lançamento para facilitar
       setInputs({ debit: '', credit: '', ref: '', date: inputs.date }); 
       document.getElementById(`debit-${data.id}`)?.focus();
     }
@@ -429,7 +344,6 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t }) =
             </div>
           </div>
           <div className="flex gap-2">
-            {/* Campo de Data (Novo) */}
             <input 
               type="date"
               value={inputs.date}
@@ -466,29 +380,19 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t }) =
   );
 };
 
-// --- Componente: Modal do Balancete de Verificação ---
 const TrialBalanceModal = ({ isOpen, onClose, razonetes, lang, t }) => {
-  // Filtros de Data
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  // CORREÇÃO: O return null só pode acontecer DEPOIS de todos os hooks serem declarados.
-  // Movi o return null para baixo.
-
-  // Lógica de Agregação com Filtro de Data
   const reportData = useMemo(() => {
-    // Optimization: se não estiver aberto, não calculamos (mas o hook existe)
     if (!isOpen) return [];
 
     return razonetes.map(r => {
-      // Filtra os lançamentos antes de somar
       const filteredEntries = r.entries.filter(entry => {
-        if (!entry.date) return true; // Lançamentos legados sem data aparecem sempre
-        
+        if (!entry.date) return true;
         const entryDate = entry.date;
         const start = startDate ? startDate : '0000-01-01';
         const end = endDate ? endDate : '9999-12-31';
-        
         return entryDate >= start && entryDate <= end;
       });
 
@@ -512,7 +416,6 @@ const TrialBalanceModal = ({ isOpen, onClose, razonetes, lang, t }) => {
     }), { debit: 0, credit: 0 });
   }, [reportData]);
 
-  // CORREÇÃO AQUI: Verificação de isOpen movida para depois dos Hooks
   if (!isOpen) return null;
 
   const isBalanced = Math.abs(totals.debit - totals.credit) < 0.01;
@@ -536,8 +439,6 @@ const TrialBalanceModal = ({ isOpen, onClose, razonetes, lang, t }) => {
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[70] p-4 animate-in fade-in duration-200">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
-        
-        {/* Header */}
         <div className="p-6 border-b border-slate-200 flex flex-col gap-4 bg-slate-50">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
@@ -554,7 +455,6 @@ const TrialBalanceModal = ({ isOpen, onClose, razonetes, lang, t }) => {
             </button>
           </div>
 
-          {/* Área de Filtros de Data */}
           <div className="flex flex-wrap gap-4 items-center bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
             <div className="flex items-center gap-2 text-slate-600">
               <Calendar size={18} />
@@ -592,7 +492,6 @@ const TrialBalanceModal = ({ isOpen, onClose, razonetes, lang, t }) => {
           </div>
         </div>
 
-        {/* Corpo do Relatório */}
         <div className="overflow-auto p-6">
           <table className="w-full text-sm border-collapse">
             <thead>
@@ -669,10 +568,86 @@ const TrialBalanceModal = ({ isOpen, onClose, razonetes, lang, t }) => {
   );
 };
 
-// --- Componente Principal App ---
+const DonationModal = ({ isOpen, onClose, t }) => {
+  const [copied, setCopied] = useState(false);
+
+  if (!isOpen) return null;
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(PIX_KEY);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[70] p-4 animate-in fade-in duration-200">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden relative">
+        <div className="h-32 bg-gradient-to-br from-amber-400 to-orange-500 relative flex items-center justify-center">
+          <div className="bg-white/20 p-4 rounded-full backdrop-blur-sm shadow-inner">
+            <Coffee size={48} className="text-white" />
+          </div>
+          <button 
+            onClick={onClose} 
+            className="absolute top-4 right-4 text-white/80 hover:text-white hover:bg-white/20 rounded-full p-1 transition"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="p-6 text-center">
+          <h3 className="text-xl font-bold text-slate-800 mb-2">{t.supportTitle}</h3>
+          <p className="text-slate-600 text-sm mb-6 leading-relaxed">
+            {t.supportDesc}
+          </p>
+
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6">
+            <div className="flex justify-center mb-4">
+              <div className="p-2 bg-white rounded-lg shadow-sm border border-slate-100">
+                <img src={QR_CODE_URL} alt="QR Code Pix" className="w-40 h-40 mix-blend-multiply" />
+              </div>
+            </div>
+            
+            <div className="text-left">
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{t.pixKey}</p>
+              <div className="flex gap-2">
+                <input 
+                  type="text" 
+                  value={PIX_KEY} 
+                  readOnly 
+                  className="w-full bg-white border border-slate-200 rounded px-3 py-2 text-sm text-slate-700 font-mono outline-none"
+                />
+                <button 
+                  onClick={handleCopy}
+                  className={`px-3 py-2 rounded border transition-all flex items-center gap-2 font-medium text-sm
+                    ${copied ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}
+                  `}
+                >
+                  {copied ? <Check size={16} /> : <Copy size={16} />}
+                  {copied ? t.copied : t.copy}
+                </button>
+              </div>
+              <p className="text-[10px] text-slate-400 mt-2 text-center">{t.bankName}</p>
+            </div>
+          </div>
+
+          <div className="bg-amber-50 border border-amber-100 rounded-lg p-4 text-left flex gap-3">
+            <div className="flex-shrink-0 text-amber-500 mt-0.5">
+              <Linkedin size={20} />
+            </div>
+            <p className="text-xs text-amber-800 leading-relaxed font-medium">
+              {t.bonusText}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const App = () => {
   const [razonetes, setRazonetes] = useState([]);
   const [isTrialBalanceOpen, setIsTrialBalanceOpen] = useState(false);
+  const [isDonationOpen, setIsDonationOpen] = useState(false); 
   const [currentLang, setCurrentLang] = useState('pt');
   const [showArchived, setShowArchived] = useState(false); 
   const t = TRANSLATIONS[currentLang];
@@ -682,9 +657,6 @@ const App = () => {
     const saved = localStorage.getItem('razonetes_react_v1');
     if (saved) {
       let parsedData = JSON.parse(saved);
-      // MIGRAÇÃO DE DADOS LEGADOS:
-      // Verifica se existem lançamentos sem data e atribui a data de hoje.
-      // Isso garante que os filtros do balancete funcionem para dados antigos.
       const today = new Date().toISOString().split('T')[0];
       let hasChanges = false;
       
@@ -700,13 +672,11 @@ const App = () => {
       }));
 
       setRazonetes(migratedData);
-      // Se houve migração, salva imediatamente para persistir a correção
       if (hasChanges) {
         localStorage.setItem('razonetes_react_v1', JSON.stringify(migratedData));
       }
 
     } else {
-      // Dados iniciais de exemplo
       setRazonetes([
         {
           id: 'demo-1',
@@ -801,7 +771,7 @@ const App = () => {
           e.type === 'DEBIT' ? 'Debito' : 'Credito', 
           e.value.toFixed(2).replace('.', ','),
           `"${e.ref}"`,
-          e.date || '', // Exporta a data também
+          e.date || '', 
           `"${r.comment.replace(/\n/g, ' ')}"`
         ];
         csv += row.join(";") + "\n";
@@ -856,6 +826,14 @@ const App = () => {
               </div>
             </div>
 
+            <button 
+              onClick={() => setIsDonationOpen(true)} 
+              className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white text-sm font-semibold rounded-lg hover:bg-amber-600 transition shadow-sm active:scale-95 border-b-2 border-amber-600"
+            >
+              <Coffee size={16} /> 
+              <span className="hidden sm:inline">{t.supportProject}</span>
+            </button>
+
             <button onClick={() => setShowArchived(!showArchived)} className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition shadow-sm active:scale-95 ${showArchived ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-50'}`}>
               {showArchived ? <Scale size={16} /> : <Archive size={16} />} 
               {showArchived ? t.showActive : t.showArchived}
@@ -903,6 +881,8 @@ const App = () => {
         )}
       </main>
 
+      <DonationModal isOpen={isDonationOpen} onClose={() => setIsDonationOpen(false)} t={t} />
+
       <TrialBalanceModal isOpen={isTrialBalanceOpen} onClose={() => setIsTrialBalanceOpen(false)} razonetes={visibleRazonetes} lang={currentLang} t={t} />
 
       {confirmModal.isOpen && (
@@ -939,3 +919,5 @@ const App = () => {
 };
 
 export default App;
+
+

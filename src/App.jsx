@@ -20,10 +20,20 @@ import {
   Folder,
   FolderPlus,
   ChevronDown,
-  MoreHorizontal, // Novo ícone para o menu "Mais Opções"
-  Settings,       // Ícone para configurações
-  Eraser          // Ícone para Limpar
+  MoreHorizontal,
+  Settings,
+  Eraser
 } from 'lucide-react';
+
+// --- TELEMETRIA: Google Analytics 4 Helper ---
+const sendGAEvent = (eventName, params = {}) => {
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('event', eventName, params);
+  } else {
+    // Log para desenvolvimento: ajuda a validar se o evento está disparando
+    console.log(`[GA4 Dev] Event: ${eventName}`, params);
+  }
+};
 
 // --- Dicionário de Traduções (I18n) ---
 const TRANSLATIONS = {
@@ -236,8 +246,27 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t }) =
     let added = false;
     const createEntry = (type, value) => ({ id: crypto.randomUUID(), type, value: parseFloat(value), ref, date });
 
-    if (inputs.debit && parseFloat(inputs.debit) > 0) { newEntries.push(createEntry('DEBIT', inputs.debit)); added = true; }
-    if (inputs.credit && parseFloat(inputs.credit) > 0) { newEntries.push(createEntry('CREDIT', inputs.credit)); added = true; }
+    if (inputs.debit && parseFloat(inputs.debit) > 0) { 
+        newEntries.push(createEntry('DEBIT', inputs.debit)); 
+        // TRACKING: Evento de lançamento (Engajamento Core)
+        // Isso permite analisar o volume de transações criadas por sessão
+        sendGAEvent('post_entry', { 
+            type: 'DEBIT', 
+            value: parseFloat(inputs.debit),
+            currency: lang === 'pt' ? 'BRL' : (lang === 'en' ? 'USD' : 'EUR')
+        });
+        added = true; 
+    }
+    if (inputs.credit && parseFloat(inputs.credit) > 0) { 
+        newEntries.push(createEntry('CREDIT', inputs.credit)); 
+        // TRACKING: Evento de lançamento (Crédito)
+        sendGAEvent('post_entry', { 
+            type: 'CREDIT', 
+            value: parseFloat(inputs.credit),
+            currency: lang === 'pt' ? 'BRL' : (lang === 'en' ? 'USD' : 'EUR')
+        });
+        added = true; 
+    }
 
     if (added) {
       onUpdate({ ...data, entries: newEntries });
@@ -295,6 +324,16 @@ const TrialBalanceModal = ({ isOpen, onClose, razonetes, lang, t, projectName })
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
+  // TRACKING: Monitorar visualização do balancete
+  useEffect(() => {
+    if (isOpen) {
+      sendGAEvent('view_item_list', { 
+        item_list_name: 'balancete_verificacao',
+        item_list_id: 'report_trial_balance'
+      });
+    }
+  }, [isOpen]);
+
   const reportData = useMemo(() => {
     if (!isOpen) return [];
     return razonetes.map(r => {
@@ -320,6 +359,9 @@ const TrialBalanceModal = ({ isOpen, onClose, razonetes, lang, t, projectName })
   const isBalanced = Math.abs(totals.debit - totals.credit) < 0.01;
 
   const exportToExcel = () => {
+    // TRACKING: Evento de download do Balancete
+    sendGAEvent('file_download', { file_extension: 'csv_excel', file_name: 'balancete', project: projectName });
+    
     let csv = "data:text/csv;charset=utf-8,\uFEFF";
     csv += `${t.projects}: ${projectName}\n`;
     csv += `${t.period}: ${startDate || 'Inicio'} - ${endDate || 'Hoje'}\n`; 
@@ -396,8 +438,25 @@ const TrialBalanceModal = ({ isOpen, onClose, razonetes, lang, t, projectName })
 
 const DonationModal = ({ isOpen, onClose, t }) => {
   const [copied, setCopied] = useState(false);
+  
+  // TRACKING: Abre o modal de doação
+  useEffect(() => {
+    if (isOpen) {
+      sendGAEvent('begin_checkout', { items: [{ name: 'Doacao Pix' }] });
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
-  const handleCopy = () => { navigator.clipboard.writeText(PIX_KEY); setCopied(true); setTimeout(() => setCopied(false), 2000); };
+  
+  const handleCopy = () => { 
+    navigator.clipboard.writeText(PIX_KEY); 
+    setCopied(true); 
+    
+    // TRACKING: Copiou a chave Pix (Intenção Forte)
+    sendGAEvent('select_content', { content_type: 'pix_key', item_id: 'copy_button' });
+    
+    setTimeout(() => setCopied(false), 2000); 
+  };
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[70] p-4 animate-in fade-in duration-200">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden relative">
@@ -437,6 +496,8 @@ const ProjectManager = ({ projects, currentProjectId, onChangeProject, onCreateP
 
   const handleCreate = () => {
     if (newProjectName.trim()) {
+      // TRACKING: Criar Novo Projeto
+      sendGAEvent('create_group', { group_name: 'project' });
       onCreateProject(newProjectName);
       setNewProjectName('');
       setIsCreating(false);
@@ -504,14 +565,18 @@ const MoreOptionsMenu = ({ onExport, onClear, onChangeLang, currentLang, t }) =>
       {isOpen && (
         <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-xl border border-slate-200 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
           <div className="py-1">
-            {/* Language Selector in Menu */}
             <div className="px-4 py-2 border-b border-slate-100">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">{t.language}</span>
               <div className="flex gap-1">
                 {['pt', 'en', 'es'].map(lang => (
                   <button 
                     key={lang}
-                    onClick={() => { onChangeLang(lang); setIsOpen(false); }}
+                    onClick={() => { 
+                      onChangeLang(lang); 
+                      // TRACKING: Evento de troca de idioma
+                      sendGAEvent('select_content', { content_type: 'language', item_id: lang });
+                      setIsOpen(false); 
+                    }}
                     className={`flex-1 text-xs py-1 rounded border ${currentLang === lang ? 'bg-blue-50 border-blue-200 text-blue-700 font-bold' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
                   >
                     {lang.toUpperCase()}
@@ -624,11 +689,28 @@ const App = () => {
 
   const addRazonete = () => {
     if (showArchived) setShowArchived(false);
+    
+    // TRACKING: Criar novo razonete
+    sendGAEvent('create_item', { 
+      item_category: 'razonete',
+      project_id: currentProjectId 
+    });
+
     setRazonetes([...razonetes, { id: crypto.randomUUID(), projectId: currentProjectId, title: '', entries: [], comment: '', archived: false }]);
   };
 
   const updateRazonete = (updatedRazonete) => { setRazonetes(razonetes.map(r => r.id === updatedRazonete.id ? updatedRazonete : r)); };
-  const toggleArchive = (id) => { setRazonetes(razonetes.map(r => r.id === id ? { ...r, archived: !r.archived } : r)); };
+  
+  const toggleArchive = (id) => {
+    // TRACKING: Arquivar/Desarquivar
+    sendGAEvent('archive_content', { 
+      content_type: 'razonete', 
+      item_id: id,
+      status: !razonetes.find(r => r.id === id).archived ? 'archived' : 'unarchived'
+    });
+    setRazonetes(razonetes.map(r => r.id === id ? { ...r, archived: !r.archived } : r)); 
+  };
+  
   const requestDelete = (id) => { setConfirmModal({ isOpen: true, type: 'SINGLE', targetId: id }); };
   const requestClearAll = () => { setConfirmModal({ isOpen: true, type: 'ALL', targetId: null }); };
 
@@ -643,6 +725,9 @@ const App = () => {
   };
 
   const exportCSV = () => {
+    // TRACKING: Evento de download do CSV geral
+    sendGAEvent('file_download', { file_extension: 'csv', file_name: 'exportacao_dados', project: projects.find(p => p.id === currentProjectId)?.name });
+
     let csv = "data:text/csv;charset=utf-8,\uFEFF";
     const currentProjectName = projects.find(p => p.id === currentProjectId)?.name || 'Projeto';
     csv += `Projeto;ID_${t.accountName};${t.accountName};Status;${t.nature};${t.type};${t.value};${t.ref};${t.date};Nota\n`;
@@ -722,7 +807,6 @@ const App = () => {
               <ClipboardList size={16} /> <span className="hidden sm:inline">{t.trialBalance}</span>
             </button>
 
-            {/* Menu "Mais Opções" (Settings, Lang, Clear) */}
             <MoreOptionsMenu 
               onExport={exportCSV} 
               onClear={requestClearAll} 
@@ -773,10 +857,20 @@ const App = () => {
         </div>
       )}
 
+      {/* TRACKING: Link de Perfil no Footer */}
       <footer className="w-full text-center py-8 text-slate-400 text-sm mt-12 border-t border-slate-100">
         <div className="flex flex-col items-center gap-2">
           <p className="flex items-center gap-1.5">{t.developedBy} <span className="font-bold text-slate-600">Tiago de Amorim Silva</span><span className="text-slate-300">•</span><span className="text-slate-500">{t.role}</span></p>
-          <a href="https://linkedin.com/in/tiagodeamorimsilva" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-blue-600 hover:text-blue-800 hover:underline transition-colors font-medium"><Linkedin size={14} />LinkedIn</a>
+          <a 
+            href="https://linkedin.com/in/tiagodeamorimsilva" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            onClick={() => sendGAEvent('generate_lead', { source: 'footer_link', type: 'linkedin' })}
+            className="flex items-center gap-1 text-blue-600 hover:text-blue-800 hover:underline transition-colors font-medium"
+          >
+            <Linkedin size={14} />
+            LinkedIn
+          </a>
         </div>
       </footer>
     </div>

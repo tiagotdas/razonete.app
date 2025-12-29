@@ -80,4 +80,4 @@ Clustering de lançamentos atípicos.
 
 Tiago de Amorim Silva Contador & Cientista de Dados | MBA FGV
 
-Desenvolvido como parte de um portfólio que une a rigor da Controladoria com a inovação da Inteligência Artificial.
+Desenvolvido como parte de um portfólio que une o rigor da Controladoria com a inovação da Inteligência Artificial.

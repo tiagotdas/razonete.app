@@ -91,7 +91,7 @@ Deploy: CI/CD via GitHub Actions e infraestrutura GitHub Pages.
 Caso queira clonar e contribuir com o projeto:
 
 # 1. Clone o repositório
-git clone [https://github.com/tiagotdas/razonete-app.git](https://github.com/tiagotdas/razonete-app.git)
+git clone [https://github.com/tiagotdas/razonete.app.git](https://github.com/tiagotdas/razonete.app.git)
 
 # 2. Instale as dependências
 npm install

@@ -40,8 +40,8 @@ import {
   LogIn,
   LogOut,
   Cloud,
-  CloudOff,
-  CloudAlert // Ícone para erro na nuvem
+  CloudOff
+  // Removido CloudAlert para evitar erro de build
 } from 'lucide-react';
 
 // --- CONFIGURAÇÃO DO FIREBASE (MODO DIRETO PARA WEB) ---
@@ -886,7 +886,7 @@ const App = () => {
                   {user ? (
                     saveError ? (
                       <span className="ml-2 flex items-center gap-1 text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full border border-red-200" title={t.cloudError}>
-                        <CloudAlert size={10} /> {t.cloudError}
+                        <CloudOff size={10} /> {t.cloudError}
                       </span>
                     ) : (
                       <span className={`ml-2 flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border ${isSyncing ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-green-100 text-green-700 border-green-200'}`}>

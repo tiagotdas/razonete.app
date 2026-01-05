@@ -2,82 +2,110 @@ Razonete Pro | Auditoria & Controladoria Visual
 
 Acesse a aplicação: razonete.app.br
 
-O Razonete Pro é uma aplicação SaaS (Software as a Service) desenvolvida para modernizar a visualização e auditoria de lançamentos contábeis. Diferente de planilhas frágeis ou ERPs "caixa-preta", esta ferramenta utiliza a metáfora visual dos Razonetes (T-Accounts) combinada com validação algorítmica em tempo real.
+O Razonete Pro é uma plataforma Cloud-Native desenvolvida para modernizar a visualização, auditoria e simulação de lançamentos contábeis. Combina a metáfora visual clássica dos Razonetes (T-Accounts) com a robustez de uma arquitetura de dados moderna, garantindo integridade e conformidade em tempo real.
 
-Projeto desenvolvido com foco em Integridade de Dados, UX/UI Corporativa e Preparação para Data Science.
+Projeto desenvolvido com foco em Controladoria, Ciência de Dados e UX Corporativa.
 
 🎯 O Problema & A Solução
 
-O Desafio: Auditores, Controllers e Estudantes frequentemente lutam para visualizar o impacto de ajustes contábeis complexos. O Excel carece de estrutura relacional e os ERPs carecem de agilidade visual.
+O Desafio: Auditores e Controllers operam frequentemente em dois extremos ineficientes: ERPs rígidos ("caixa-preta") ou folhas de cálculo frágeis e sem controlo de versão. A simulação de cenários complexos (fusões, ajustes de auditoria) carece de agilidade e rastreabilidade.
 
-A Solução: Um "Sandbox Contábil" onde o profissional pode:
+A Solução: Um ambiente SaaS seguro onde o profissional pode:
 
-Simular lançamentos de débito e crédito com feedback visual imediato.
+Simular lançamentos com validação imediata de Partidas Dobradas.
 
-Garantir o princípio das Partidas Dobradas (Double-Entry Bookkeeping) automaticamente.
+Gerir Múltiplos Cenários (Multitenancy Lógico) para diferentes clientes ou exercícios.
 
-Gerar dados estruturados (CSV) prontos para ingestão em pipelines de Data Science (Pandas/Python).
+Persistir Dados na Nuvem (Firebase) para acesso multidispositivo e segurança.
 
-🚀 Funcionalidades Chave
+Extrair Inteligência via exportação estruturada para ferramentas de BI e Data Science.
+
+🚀 Funcionalidades Implementadas
 
 Core Contábil
 
-Motor de Partidas Dobradas: Algoritmo que monitora em tempo real a equação ∑ Débitos = ∑ Créditos, alertando sobre divergências no milissegundo em que ocorrem.
+Motor de Partidas Dobradas: Algoritmo reativo que monitoriza a equação ∑ Débitos = ∑ Créditos em tempo real, alertando sobre divergências.
 
-Balancete de Verificação (Trial Balance): Geração automática de relatório com cross-footing (soma cruzada) dos saldos.
+Balancete Interativo: Relatório de verificação com cross-footing automático.
 
-Audit Trail (Soft Delete): Sistema de arquivamento que permite ocultar contas da visão operacional sem destruir o histórico do lançamento (fundamental para rastreabilidade).
+Filtros Temporais: Capacidade de gerar balancetes por período (Data Inicial / Data Final), respeitando o regime de competência.
 
-Arquitetura de Dados
+Gestão & Auditoria
 
-Multitenancy Lógico: Capacidade de gerenciar múltiplos cenários ou clientes ("Cliente A", "Simulação Fusão") de forma isolada no mesmo navegador.
+Multitenancy Lógico (Projetos): Criação e gestão de múltiplos cenários ("Cliente A", "Simulação Fusão") isolados dentro da mesma conta.
 
-Exportação Estruturada: Geração de ficheiros CSV normalizados e Excel-friendly, segregados por ID, Natureza e Projeto.
+Audit Trail (Arquivamento): Sistema de soft delete que permite ocultar contas da visão operacional sem destruir o histórico do lançamento.
 
-Validação Temporal: Filtro de Balancete por período ("De/Até") respeitando o regime de competência.
+Modelo "Donationware": Integração de interface para apoio voluntário via Pix (QR Code dinâmico).
+
+Arquitetura de Dados & Nuvem
+
+Sincronização Híbrida: O sistema funciona Offline (LocalStorage) e sincroniza com a Nuvem (Firestore) assim que o utilizador faz login.
+
+Autenticação Segura: Integração com Google Auth (OAuth 2.0).
+
+Feedback Visual: Indicadores de estado de gravação (Salvando, Salvo, Erro).
 
 Engenharia & UX
 
-Internacionalização (i18n): Suporte nativo e instantâneo para Português (BRL), Inglês (USD) e Espanhol (EUR).
+Internacionalização (i18n): Suporte nativo e troca instantânea entre Português (BRL), Inglês (USD) e Espanhol (EUR).
 
-Grid Responsivo Inteligente: Layout adaptativo que utiliza minmax e auto-fill para garantir a legibilidade dos T's em qualquer dispositivo.
+Telemetria (GA4): Monitorização de eventos de conversão, engajamento e funil de utilização.
 
-Telemetria (GA4): Monitoramento de eventos de conversão e engajamento.
-
-🛠️ Tech Stack & Arquitetura
-
-Este projeto foi construído seguindo os princípios de Clean Code e Component-Based Architecture.
-
-Frontend: React 18 (Hooks avançados: useMemo para cálculos pesados, useEffect para persistência).
-
-Estilização: Tailwind CSS (Design System responsivo).
-
-Build Tool: Vite (Performance otimizada).
-
-Icons: Lucide React.
-
-Analytics: Google Analytics 4 (Event-based tracking).
-
-Deployment: CI/CD automatizado via GitHub Actions, hospedado em infraestrutura GitHub Pages com domínio personalizado e SSL.
+Responsividade: Interface adaptativa utilizando CSS Grid avançado para uso em Desktop e Mobile.
 
 📊 Para Cientistas de Dados & Auditores
 
-A ferramenta foi desenhada para ser o "Elo Perdido" na extração de dados. Ao exportar o CSV, você obtém um dataset limpo:
+A ferramenta foi desenhada como um ETL Visual. Ao contrário de um ERP tradicional, o Razonete Pro permite a extração de datasets normalizados para ingestão em Python (Pandas/Scikit-Learn).
+
+Estrutura de Exportação (CSV):
 
 Projeto;ID_Conta;Conta;Status;Natureza;Tipo;Valor;Ref;Data;Nota
-"Auditoria 2024";"uuid-1";"Caixa";"Ativo";"Débito";"Debito";1000.00;"Aporte";"2024-01-01";"Integralização"
+"Auditoria Q4";"uuid-1";"Caixa";"Ativo";"Débito";"Debito";15000.00;"Aporte";"2024-12-01";"Integralização Capital"
 
 
-Isso permite ingestão direta em Python (Pandas) para análises de:
+Casos de Uso de IA:
 
-Detecção de anomalias (Benford's Law).
+Deteção de anomalias em lançamentos manuais (Benford's Law).
 
-Análise de liquidez preditiva.
+Previsão de fluxo de caixa baseada em séries temporais de simulação.
 
-Clustering de lançamentos atípicos.
+Clustering de contas para revisão analítica.
+
+🛠️ Stack Tecnológica
+
+O projeto segue princípios de Clean Architecture e Serverless:
+
+Frontend: React 18 + Vite.
+
+Estilização: Tailwind CSS + Lucide React Icons.
+
+Backend as a Service (BaaS): Firebase (Authentication & Firestore).
+
+Analytics: Google Analytics 4 (Event-based tracking).
+
+Deploy: CI/CD via GitHub Actions e infraestrutura GitHub Pages.
+
+💻 Como Rodar Localmente
+
+Caso queira clonar e contribuir com o projeto:
+
+# 1. Clone o repositório
+git clone [https://github.com/SEU_USUARIO/razonete-app.git](https://github.com/SEU_USUARIO/razonete-app.git)
+
+# 2. Instale as dependências
+npm install
+
+# 3. Configure as variáveis de ambiente (Firebase)
+# Crie um arquivo .env na raiz com as suas chaves API
+
+# 4. Rode o servidor de desenvolvimento
+npm run dev
+
 
 👨‍💻 Autor
 
-Tiago de Amorim Silva Contador & Cientista de Dados | MBA FGV
+Tiago de Amorim Silva
+Contador & Cientista de Dados | MBA FGV
 
-Desenvolvido como parte de um portfólio que une o rigor da Controladoria com a inovação da Inteligência Artificial.
+Desenvolvido como um ativo de portfólio que une o rigor da Controladoria com a inovação da Inteligência Artificial.

@@ -40,12 +40,11 @@ import {
   LogIn,
   LogOut,
   Cloud,
-  CloudOff
+  CloudOff,
+  CloudAlert // Ícone para erro na nuvem
 } from 'lucide-react';
 
 // --- CONFIGURAÇÃO DO FIREBASE (MODO DIRETO PARA WEB) ---
-// Instrução: Substitua as strings abaixo pelos dados que você copiou do Console do Firebase.
-// Não apague as aspas.
 const firebaseConfig = {
   apiKey: "AIzaSyDByE5IapjOxWUJHeJ9u6Zen-XPdmRD7cg",
   authDomain: "razonete.firebaseapp.com",
@@ -58,17 +57,14 @@ const firebaseConfig = {
 
 // Inicialização segura
 let auth, db;
-// Verifica se a config foi preenchida (agora com chaves reais)
 if (firebaseConfig.apiKey) {
   try {
     const app = initializeApp(firebaseConfig);
     auth = getAuth(app);
     db = getFirestore(app);
   } catch (error) {
-    console.warn("Erro ao inicializar Firebase. Verifique se copiou as chaves corretamente.", error);
+    console.warn("Erro ao inicializar Firebase.", error);
   }
-} else {
-  // console.warn("Firebase não configurado. O app rodará em modo local (Offline).");
 }
 
 // --- TELEMETRIA: Google Analytics 4 Helper ---
@@ -158,8 +154,9 @@ const TRANSLATIONS = {
     language: 'Idioma',
     login: 'Entrar com Google',
     logout: 'Sair',
-    syncing: 'Sincronizando...',
+    syncing: 'A salvar...',
     cloudStorage: 'Nuvem Ativa',
+    cloudError: 'Erro ao Salvar (Verifique Conexão/Login)',
     localStorage: 'Modo Local'
   },
   en: {
@@ -184,8 +181,9 @@ const TRANSLATIONS = {
     language: 'Language',
     login: 'Login with Google',
     logout: 'Logout',
-    syncing: 'Syncing...',
+    syncing: 'Saving...',
     cloudStorage: 'Cloud Active',
+    cloudError: 'Save Error (Check Connection/Login)',
     localStorage: 'Local Mode'
   },
   es: {
@@ -210,8 +208,9 @@ const TRANSLATIONS = {
     language: 'Idioma',
     login: 'Entrar con Google',
     logout: 'Salir',
-    syncing: 'Sincronizando...',
+    syncing: 'Guardando...',
     cloudStorage: 'Nube Activa',
+    cloudError: 'Error al Guardar',
     localStorage: 'Modo Local'
   }
 };
@@ -647,6 +646,8 @@ const App = () => {
   // Auth State
   const [user, setUser] = useState(null);
   const [isSyncing, setIsSyncing] = useState(false);
+  // Novo Estado: Controla erro de gravação
+  const [saveError, setSaveError] = useState(false);
 
   // Monitorar Autenticação
   useEffect(() => {
@@ -655,11 +656,7 @@ const App = () => {
       setUser(currentUser);
       if (currentUser && db) {
         setIsSyncing(true);
-        // Ao logar, tenta buscar dados da nuvem.
-        // Estratégia Híbrida Simplificada:
-        // 1. Tenta ler documento do usuário
-        // 2. Se não existir, salva o local atual lá (primeiro sync)
-        // 3. Se existir, substitui o local pelo da nuvem (Cloud is Truth)
+        setSaveError(false); // Reseta erro ao logar
         try {
           const userDocRef = doc(db, "users", currentUser.uid);
           const docSnap = await getDoc(userDocRef);
@@ -678,6 +675,7 @@ const App = () => {
           }
         } catch (error) {
           console.error("Erro ao sincronizar login:", error);
+          setSaveError(true);
         } finally {
           setIsSyncing(false);
         }
@@ -729,17 +727,21 @@ const App = () => {
     // 2. Se logado, salva na nuvem (Debounce simples para evitar muitas escritas)
     if (user && db) {
       const saveToCloud = async () => {
+        setIsSyncing(true); // Indica que começou a salvar
         try {
-          // Salva tudo num documento único por enquanto (simples e funcional para app individual)
-          // Para Data Science futuro, podemos criar uma cloud function que "explode" esse JSON em coleções
           await setDoc(doc(db, "users", user.uid), {
             projects,
             razonetes,
             lastUpdate: new Date().toISOString(),
             email: user.email // Útil para contato se permitido
           }, { merge: true });
+          setSaveError(false); // Sucesso
         } catch (e) {
           console.error("Erro ao salvar na nuvem", e);
+          setSaveError(true); // Ativa o alerta vermelho
+        } finally {
+           // Pequeno delay para mostrar o ícone de salvamento
+           setTimeout(() => setIsSyncing(false), 500);
         }
       };
       
@@ -756,6 +758,7 @@ const App = () => {
       sendGAEvent('login', { method: 'google' });
     } catch (error) {
       console.error("Login failed", error);
+      alert(`Erro no Login: ${error.code} - ${error.message}`);
     }
   };
 
@@ -881,9 +884,15 @@ const App = () => {
                   {t.appSubtitle}
                   {/* Indicador de Status da Nuvem */}
                   {user ? (
-                    <span className="ml-2 flex items-center gap-1 text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full border border-green-200">
-                      <Cloud size={10} /> {isSyncing ? t.syncing : t.cloudStorage}
-                    </span>
+                    saveError ? (
+                      <span className="ml-2 flex items-center gap-1 text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full border border-red-200" title={t.cloudError}>
+                        <CloudAlert size={10} /> {t.cloudError}
+                      </span>
+                    ) : (
+                      <span className={`ml-2 flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border ${isSyncing ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-green-100 text-green-700 border-green-200'}`}>
+                        <Cloud size={10} /> {isSyncing ? t.syncing : t.cloudStorage}
+                      </span>
+                    )
                   ) : (
                     <span className="ml-2 flex items-center gap-1 text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full border border-slate-200">
                       <CloudOff size={10} /> {t.localStorage}

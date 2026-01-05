@@ -1,4 +1,19 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { initializeApp } from "firebase/app";
+import { 
+  getAuth, 
+  signInWithPopup, 
+  GoogleAuthProvider, 
+  signOut, 
+  onAuthStateChanged 
+} from "firebase/auth";
+import { 
+  getFirestore, 
+  doc, 
+  setDoc, 
+  getDoc, 
+  onSnapshot 
+} from "firebase/firestore";
 import { 
   Plus, 
   Trash2, 
@@ -21,17 +36,45 @@ import {
   FolderPlus,
   ChevronDown,
   MoreHorizontal,
-  Settings,
-  Eraser
+  Eraser,
+  LogIn,
+  LogOut,
+  Cloud,
+  CloudOff
 } from 'lucide-react';
+
+// --- CONFIGURAÇÃO DO FIREBASE (MODO DIRETO PARA WEB) ---
+// Instrução: Substitua as strings abaixo pelos dados que você copiou do Console do Firebase.
+// Não apague as aspas.
+const firebaseConfig = {
+  apiKey: "AIzaSyDByE5IapjOxWUJHeJ9u6Zen-XPdmRD7cg",
+  authDomain: "razonete.firebaseapp.com",
+  projectId: "razonete",
+  storageBucket: "razonete.firebasestorage.app",
+  messagingSenderId: "292066184172",
+  appId: "1:292066184172:web:da7dbc37c08475bd024ec9",
+  measurementId: "G-MC6L9DKQ80"
+};
+
+// Inicialização segura
+let auth, db;
+// Verifica se a config foi preenchida (agora com chaves reais)
+if (firebaseConfig.apiKey) {
+  try {
+    const app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db = getFirestore(app);
+  } catch (error) {
+    console.warn("Erro ao inicializar Firebase. Verifique se copiou as chaves corretamente.", error);
+  }
+} else {
+  // console.warn("Firebase não configurado. O app rodará em modo local (Offline).");
+}
 
 // --- TELEMETRIA: Google Analytics 4 Helper ---
 const sendGAEvent = (eventName, params = {}) => {
   if (typeof window !== 'undefined' && window.gtag) {
     window.gtag('event', eventName, params);
-  } else {
-    // Log para desenvolvimento: ajuda a validar se o evento está disparando
-    console.log(`[GA4 Dev] Event: ${eventName}`, params);
   }
 };
 
@@ -112,7 +155,12 @@ const TRANSLATIONS = {
     defaultProject: 'Geral (Principal)',
     inProject: 'em',
     moreOptions: 'Mais Opções',
-    language: 'Idioma'
+    language: 'Idioma',
+    login: 'Entrar com Google',
+    logout: 'Sair',
+    syncing: 'Sincronizando...',
+    cloudStorage: 'Nuvem Ativa',
+    localStorage: 'Modo Local'
   },
   en: {
     debit: 'Debit', credit: 'Credit', balance: 'Balance', debitBalance: 'Debit Balance', creditBalance: 'Credit Balance', accountName: 'Account Name', addEntry: 'Add', ref: 'Ref.', notes: 'Explanatory notes...', deleteAccount: 'Delete Account', deleteEntry: 'Delete Entry', appTitle: 'T-Account Pro', appSubtitle: 'The famous T-chart', doubleEntryOk: 'Double Entry: OK', discrepancy: 'Discrepancy', newAccount: 'New Account', trialBalance: 'Trial Balance', export: 'Export CSV', clearAll: 'Clear All', emptyWorkspace: 'Empty workspace', emptyArchived: 'No archived accounts', startAdding: 'Start by adding your first T-account.', confirmation: 'Confirmation', confirmDeleteAll: 'Are you sure you want to delete all visible accounts? All work will be lost.', confirmDeleteOne: 'Are you sure you want to delete this account permanently?', cancel: 'Cancel', deleteAll: 'Delete All', delete: 'Delete', trialBalanceTitle: 'Trial Balance', trialBalanceSubtitle: 'Account balance summary (Visible)', tableAccounts: 'Accounts', tableDebit: 'Debit Balance', tableCredit: 'Credit Balance', totals: 'TOTALS', balanced: 'Balanced', balancedMsg: 'The double-entry method was respected.', unbalanced: 'Discrepancy Found', unbalancedMsg: 'There is a difference of {diff} between debits and credits.', close: 'Close', nature: 'Nature', type: 'Type', value: 'Value', debtor: 'Debit', creditor: 'Credit', archive: 'Archive', unarchive: 'Unarchive', showArchived: 'Show Archived', showActive: 'Show Active', archivedView: 'Archive Mode', exportExcel: 'Export to Excel', developedBy: 'Developed by', role: 'Contador & Data Scientist', date: 'Date', period: 'Period', startDate: 'Start Date', endDate: 'End Date', filter: 'Filter',
@@ -133,7 +181,12 @@ const TRANSLATIONS = {
     defaultProject: 'General (Main)',
     inProject: 'in',
     moreOptions: 'More Options',
-    language: 'Language'
+    language: 'Language',
+    login: 'Login with Google',
+    logout: 'Logout',
+    syncing: 'Syncing...',
+    cloudStorage: 'Cloud Active',
+    localStorage: 'Local Mode'
   },
   es: {
     debit: 'Débito', credit: 'Crédito', balance: 'Saldo', debitBalance: 'Saldo Deudor', creditBalance: 'Saldo Acreedor', accountName: 'Nombre de la Cuenta', addEntry: 'Agregar', ref: 'Ref.', notes: 'Notas explicativas...', deleteAccount: 'Eliminar Cuenta', deleteEntry: 'Eliminar entrada', appTitle: 'Razonete Pro', appSubtitle: 'El famoso gráfico en T', doubleEntryOk: 'Partida Doble: OK', discrepancy: 'Discrepancia', newAccount: 'Nueva Cuenta', trialBalance: 'Balance', export: 'Exportar CSV', clearAll: 'Borrar Todo', emptyWorkspace: 'Espacio de trabajo vacío', emptyArchived: 'No hay cuentas archivadas', startAdding: 'Comience agregando su primera cuenta T.', confirmation: 'Confirmación', confirmDeleteAll: '¿Está seguro de que desea eliminar todas las cuentas visibles? Todo el trabajo se perderá.', confirmDeleteOne: '¿Está seguro de que desea eliminar esta cuenta permanentemente?', cancel: 'Cancelar', deleteAll: 'Borrar Todo', delete: 'Eliminar', trialBalanceTitle: 'Balance de Comprobación', trialBalanceSubtitle: 'Resumen de saldos por cuenta (Visibles)', tableAccounts: 'Cuentas', tableDebit: 'Saldo Deudor', tableCredit: 'Saldo Acreedor', totals: 'TOTALES', balanced: 'Balance Cuadrado', balancedMsg: 'Se respetó el método de partida doble.', unbalanced: 'Discrepancia Encontrada', unbalancedMsg: 'Hay una diferencia de {diff} entre débitos y créditos.', close: 'Cerrar', nature: 'Naturaleza', type: 'Tipo', value: 'Valor', debtor: 'Deudora', creditor: 'Acreedora', archive: 'Archivar', unarchive: 'Desarchivar', showArchived: 'Ver Archivados', showActive: 'Ver Activos', archivedView: 'Modo Archivo', exportExcel: 'Exportar a Excel', developedBy: 'Desarrollado por', role: 'Contador & Científico de Datos', date: 'Fecha', period: 'Período', startDate: 'Fecha Inicio', endDate: 'Fecha Fin', filter: 'Filtrar',
@@ -154,7 +207,12 @@ const TRANSLATIONS = {
     defaultProject: 'General (Principal)',
     inProject: 'en',
     moreOptions: 'Más Opciones',
-    language: 'Idioma'
+    language: 'Idioma',
+    login: 'Entrar con Google',
+    logout: 'Salir',
+    syncing: 'Sincronizando...',
+    cloudStorage: 'Nube Activa',
+    localStorage: 'Modo Local'
   }
 };
 
@@ -248,23 +306,12 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t }) =
 
     if (inputs.debit && parseFloat(inputs.debit) > 0) { 
         newEntries.push(createEntry('DEBIT', inputs.debit)); 
-        // TRACKING: Evento de lançamento (Engajamento Core)
-        // Isso permite analisar o volume de transações criadas por sessão
-        sendGAEvent('post_entry', { 
-            type: 'DEBIT', 
-            value: parseFloat(inputs.debit),
-            currency: lang === 'pt' ? 'BRL' : (lang === 'en' ? 'USD' : 'EUR')
-        });
+        sendGAEvent('post_entry', { type: 'DEBIT', value: parseFloat(inputs.debit), currency: lang === 'pt' ? 'BRL' : (lang === 'en' ? 'USD' : 'EUR') });
         added = true; 
     }
     if (inputs.credit && parseFloat(inputs.credit) > 0) { 
         newEntries.push(createEntry('CREDIT', inputs.credit)); 
-        // TRACKING: Evento de lançamento (Crédito)
-        sendGAEvent('post_entry', { 
-            type: 'CREDIT', 
-            value: parseFloat(inputs.credit),
-            currency: lang === 'pt' ? 'BRL' : (lang === 'en' ? 'USD' : 'EUR')
-        });
+        sendGAEvent('post_entry', { type: 'CREDIT', value: parseFloat(inputs.credit), currency: lang === 'pt' ? 'BRL' : (lang === 'en' ? 'USD' : 'EUR') });
         added = true; 
     }
 
@@ -324,13 +371,9 @@ const TrialBalanceModal = ({ isOpen, onClose, razonetes, lang, t, projectName })
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  // TRACKING: Monitorar visualização do balancete
   useEffect(() => {
     if (isOpen) {
-      sendGAEvent('view_item_list', { 
-        item_list_name: 'balancete_verificacao',
-        item_list_id: 'report_trial_balance'
-      });
+      sendGAEvent('view_item_list', { item_list_name: 'balancete_verificacao', item_list_id: 'report_trial_balance' });
     }
   }, [isOpen]);
 
@@ -359,9 +402,7 @@ const TrialBalanceModal = ({ isOpen, onClose, razonetes, lang, t, projectName })
   const isBalanced = Math.abs(totals.debit - totals.credit) < 0.01;
 
   const exportToExcel = () => {
-    // TRACKING: Evento de download do Balancete
     sendGAEvent('file_download', { file_extension: 'csv_excel', file_name: 'balancete', project: projectName });
-    
     let csv = "data:text/csv;charset=utf-8,\uFEFF";
     csv += `${t.projects}: ${projectName}\n`;
     csv += `${t.period}: ${startDate || 'Inicio'} - ${endDate || 'Hoje'}\n`; 
@@ -438,8 +479,6 @@ const TrialBalanceModal = ({ isOpen, onClose, razonetes, lang, t, projectName })
 
 const DonationModal = ({ isOpen, onClose, t }) => {
   const [copied, setCopied] = useState(false);
-  
-  // TRACKING: Abre o modal de doação
   useEffect(() => {
     if (isOpen) {
       sendGAEvent('begin_checkout', { items: [{ name: 'Doacao Pix' }] });
@@ -447,14 +486,10 @@ const DonationModal = ({ isOpen, onClose, t }) => {
   }, [isOpen]);
 
   if (!isOpen) return null;
-  
   const handleCopy = () => { 
     navigator.clipboard.writeText(PIX_KEY); 
     setCopied(true); 
-    
-    // TRACKING: Copiou a chave Pix (Intenção Forte)
     sendGAEvent('select_content', { content_type: 'pix_key', item_id: 'copy_button' });
-    
     setTimeout(() => setCopied(false), 2000); 
   };
   return (
@@ -496,7 +531,6 @@ const ProjectManager = ({ projects, currentProjectId, onChangeProject, onCreateP
 
   const handleCreate = () => {
     if (newProjectName.trim()) {
-      // TRACKING: Criar Novo Projeto
       sendGAEvent('create_group', { group_name: 'project' });
       onCreateProject(newProjectName);
       setNewProjectName('');
@@ -548,56 +582,48 @@ const ProjectManager = ({ projects, currentProjectId, onChangeProject, onCreateP
   );
 };
 
-// --- NOVO COMPONENTE: MENU DE MAIS OPÇÕES ---
-const MoreOptionsMenu = ({ onExport, onClear, onChangeLang, currentLang, t }) => {
+// --- MENU DE MAIS OPÇÕES E AUTH ---
+const MoreOptionsMenu = ({ onExport, onClear, onChangeLang, currentLang, t, user, onLogin, onLogout }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="relative">
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-center p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition"
-        title={t.moreOptions}
-      >
-        <MoreHorizontal size={20} />
-      </button>
-
+      <button onClick={() => setIsOpen(!isOpen)} className="flex items-center justify-center p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition" title={t.moreOptions}><MoreHorizontal size={20} /></button>
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-xl border border-slate-200 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-200 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
           <div className="py-1">
+            {/* Seção de Login / Perfil */}
+            <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
+              {user ? (
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    {user.photoURL ? (
+                      <img src={user.photoURL} alt="User" className="w-8 h-8 rounded-full border border-slate-200" />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">{user.email?.[0]?.toUpperCase()}</div>
+                    )}
+                    <div className="flex flex-col overflow-hidden">
+                      <span className="text-xs font-bold text-slate-700 truncate">{user.displayName || 'Usuário'}</span>
+                      <span className="text-[10px] text-slate-500 truncate">{user.email}</span>
+                    </div>
+                  </div>
+                  <button onClick={() => { onLogout(); setIsOpen(false); }} className="text-xs flex items-center gap-1 text-red-600 hover:text-red-800 hover:underline"><LogOut size={12} /> {t.logout}</button>
+                </div>
+              ) : (
+                <button onClick={() => { onLogin(); setIsOpen(false); }} className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-100 transition shadow-sm"><LogIn size={14} /> {t.login}</button>
+              )}
+            </div>
+
             <div className="px-4 py-2 border-b border-slate-100">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">{t.language}</span>
               <div className="flex gap-1">
                 {['pt', 'en', 'es'].map(lang => (
-                  <button 
-                    key={lang}
-                    onClick={() => { 
-                      onChangeLang(lang); 
-                      // TRACKING: Evento de troca de idioma
-                      sendGAEvent('select_content', { content_type: 'language', item_id: lang });
-                      setIsOpen(false); 
-                    }}
-                    className={`flex-1 text-xs py-1 rounded border ${currentLang === lang ? 'bg-blue-50 border-blue-200 text-blue-700 font-bold' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
-                  >
-                    {lang.toUpperCase()}
-                  </button>
+                  <button key={lang} onClick={() => { onChangeLang(lang); sendGAEvent('select_content', { content_type: 'language', item_id: lang }); setIsOpen(false); }} className={`flex-1 text-xs py-1 rounded border ${currentLang === lang ? 'bg-blue-50 border-blue-200 text-blue-700 font-bold' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}>{lang.toUpperCase()}</button>
                 ))}
               </div>
             </div>
-
-            <button 
-              onClick={() => { onExport(); setIsOpen(false); }}
-              className="w-full text-left px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 flex items-center gap-2"
-            >
-              <Download size={16} /> {t.export}
-            </button>
-            
-            <button 
-              onClick={() => { onClear(); setIsOpen(false); }}
-              className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-            >
-              <Eraser size={16} /> {t.clearAll}
-            </button>
+            <button onClick={() => { onExport(); setIsOpen(false); }} className="w-full text-left px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 flex items-center gap-2"><Download size={16} /> {t.export}</button>
+            <button onClick={() => { onClear(); setIsOpen(false); }} className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"><Eraser size={16} /> {t.clearAll}</button>
           </div>
         </div>
       )}
@@ -617,39 +643,134 @@ const App = () => {
   const t = TRANSLATIONS[currentLang];
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, type: null, targetId: null });
   const [deleteProjectModal, setDeleteProjectModal] = useState({ isOpen: false, projectId: null });
+  
+  // Auth State
+  const [user, setUser] = useState(null);
+  const [isSyncing, setIsSyncing] = useState(false);
 
+  // Monitorar Autenticação
   useEffect(() => {
-    const savedProjects = localStorage.getItem('razonetes_projects_v1');
-    if (savedProjects) setProjects(JSON.parse(savedProjects));
+    if (!auth) return;
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
+      if (currentUser && db) {
+        setIsSyncing(true);
+        // Ao logar, tenta buscar dados da nuvem.
+        // Estratégia Híbrida Simplificada:
+        // 1. Tenta ler documento do usuário
+        // 2. Se não existir, salva o local atual lá (primeiro sync)
+        // 3. Se existir, substitui o local pelo da nuvem (Cloud is Truth)
+        try {
+          const userDocRef = doc(db, "users", currentUser.uid);
+          const docSnap = await getDoc(userDocRef);
+          
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            if (data.projects) setProjects(data.projects);
+            if (data.razonetes) setRazonetes(data.razonetes);
+          } else {
+            // Primeiro login: Salva o estado local na nuvem
+            await setDoc(userDocRef, {
+              projects: projects,
+              razonetes: razonetes,
+              lastUpdate: new Date().toISOString()
+            });
+          }
+        } catch (error) {
+          console.error("Erro ao sincronizar login:", error);
+        } finally {
+          setIsSyncing(false);
+        }
+      }
+    });
+    return () => unsubscribe();
+  }, []); // Executa uma vez no mount para configurar o listener
 
-    const savedRazonetes = localStorage.getItem('razonetes_react_v1');
-    if (savedRazonetes) {
-      let parsedData = JSON.parse(savedRazonetes);
-      const today = new Date().toISOString().split('T')[0];
-      let hasChanges = false;
-      
-      const migratedData = parsedData.map(r => {
-        let updatedR = { ...r };
-        updatedR.entries = r.entries.map(e => {
-          if (!e.date) { hasChanges = true; return { ...e, date: today }; }
-          return e;
+  // Load Inicial (Local Storage) - Só roda se NÃO estiver logado ou antes do auth
+  useEffect(() => {
+    // Se estiver logado, o onAuthStateChanged cuida dos dados.
+    // Se não, carregamos do localStorage.
+    if (!user) {
+      const savedProjects = localStorage.getItem('razonetes_projects_v1');
+      if (savedProjects) setProjects(JSON.parse(savedProjects));
+
+      const savedRazonetes = localStorage.getItem('razonetes_react_v1');
+      if (savedRazonetes) {
+        let parsedData = JSON.parse(savedRazonetes);
+        const today = new Date().toISOString().split('T')[0];
+        let hasChanges = false;
+        const migratedData = parsedData.map(r => {
+          let updatedR = { ...r };
+          updatedR.entries = r.entries.map(e => {
+            if (!e.date) { hasChanges = true; return { ...e, date: today }; }
+            return e;
+          });
+          if (!updatedR.projectId) { updatedR.projectId = 'default'; hasChanges = true; }
+          return updatedR;
         });
-        if (!updatedR.projectId) { updatedR.projectId = 'default'; hasChanges = true; }
-        return updatedR;
-      });
-
-      setRazonetes(migratedData);
-      if (hasChanges) localStorage.setItem('razonetes_react_v1', JSON.stringify(migratedData));
-    } else {
-      setRazonetes([
-        { id: 'demo-1', projectId: 'default', title: 'Caixa (Ativo)', entries: [{ id: 'e1', type: 'DEBIT', value: 1000, ref: 'Cap. Social', date: new Date().toISOString().split('T')[0] }, { id: 'e2', type: 'CREDIT', value: 200, ref: 'Mat. Escrit.', date: new Date().toISOString().split('T')[0] }], comment: 'Disponibilidade imediata.', archived: false },
-        { id: 'demo-2', projectId: 'default', title: 'Capital Social (PL)', entries: [{ id: 'e3', type: 'CREDIT', value: 1000, ref: 'Integralização', date: new Date().toISOString().split('T')[0] }], comment: 'Capital dos sócios.', archived: false }
-      ]);
+        setRazonetes(migratedData);
+        if (hasChanges) localStorage.setItem('razonetes_react_v1', JSON.stringify(migratedData));
+      } else {
+        // Dados Demo
+        setRazonetes([
+          { id: 'demo-1', projectId: 'default', title: 'Caixa (Ativo)', entries: [{ id: 'e1', type: 'DEBIT', value: 1000, ref: 'Cap. Social', date: new Date().toISOString().split('T')[0] }, { id: 'e2', type: 'CREDIT', value: 200, ref: 'Mat. Escrit.', date: new Date().toISOString().split('T')[0] }], comment: 'Disponibilidade imediata.', archived: false },
+          { id: 'demo-2', projectId: 'default', title: 'Capital Social (PL)', entries: [{ id: 'e3', type: 'CREDIT', value: 1000, ref: 'Integralização', date: new Date().toISOString().split('T')[0] }], comment: 'Capital dos sócios.', archived: false }
+        ]);
+      }
     }
-  }, []);
+  }, [user]);
 
-  useEffect(() => { localStorage.setItem('razonetes_react_v1', JSON.stringify(razonetes)); }, [razonetes]);
-  useEffect(() => { localStorage.setItem('razonetes_projects_v1', JSON.stringify(projects)); }, [projects]);
+  // Persistência Unificada (Local + Cloud)
+  useEffect(() => {
+    // 1. Sempre salva localmente (Backup/Offline)
+    localStorage.setItem('razonetes_react_v1', JSON.stringify(razonetes));
+    localStorage.setItem('razonetes_projects_v1', JSON.stringify(projects));
+
+    // 2. Se logado, salva na nuvem (Debounce simples para evitar muitas escritas)
+    if (user && db) {
+      const saveToCloud = async () => {
+        try {
+          // Salva tudo num documento único por enquanto (simples e funcional para app individual)
+          // Para Data Science futuro, podemos criar uma cloud function que "explode" esse JSON em coleções
+          await setDoc(doc(db, "users", user.uid), {
+            projects,
+            razonetes,
+            lastUpdate: new Date().toISOString(),
+            email: user.email // Útil para contato se permitido
+          }, { merge: true });
+        } catch (e) {
+          console.error("Erro ao salvar na nuvem", e);
+        }
+      };
+      
+      const timeoutId = setTimeout(saveToCloud, 2000); // Espera 2s após última mudança
+      return () => clearTimeout(timeoutId);
+    }
+  }, [razonetes, projects, user]);
+
+  const handleLogin = async () => {
+    if (!auth) return;
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+      sendGAEvent('login', { method: 'google' });
+    } catch (error) {
+      console.error("Login failed", error);
+    }
+  };
+
+  const handleLogout = async () => {
+    if (!auth) return;
+    try {
+      await signOut(auth);
+      // Limpa estado ou recarrega do local?
+      // O useEffect do LocalStorage vai rodar quando user for null? Não automaticamente pois user é dependência.
+      // Melhor recarregar a página para garantir estado limpo do local storage
+      window.location.reload(); 
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
+  };
 
   const currentProjectRazonetes = useMemo(() => {
     return razonetes.filter(r => r.projectId === currentProjectId); 
@@ -673,6 +794,7 @@ const App = () => {
     const newProject = { id: crypto.randomUUID(), name };
     setProjects([...projects, newProject]);
     setCurrentProjectId(newProject.id);
+    sendGAEvent('create_group', { group_name: 'project' });
   };
 
   const handleDeleteProjectRequest = (projectId) => { setDeleteProjectModal({ isOpen: true, projectId }); };
@@ -689,25 +811,14 @@ const App = () => {
 
   const addRazonete = () => {
     if (showArchived) setShowArchived(false);
-    
-    // TRACKING: Criar novo razonete
-    sendGAEvent('create_item', { 
-      item_category: 'razonete',
-      project_id: currentProjectId 
-    });
-
+    sendGAEvent('create_item', { item_category: 'razonete', project_id: currentProjectId });
     setRazonetes([...razonetes, { id: crypto.randomUUID(), projectId: currentProjectId, title: '', entries: [], comment: '', archived: false }]);
   };
 
   const updateRazonete = (updatedRazonete) => { setRazonetes(razonetes.map(r => r.id === updatedRazonete.id ? updatedRazonete : r)); };
   
   const toggleArchive = (id) => {
-    // TRACKING: Arquivar/Desarquivar
-    sendGAEvent('archive_content', { 
-      content_type: 'razonete', 
-      item_id: id,
-      status: !razonetes.find(r => r.id === id).archived ? 'archived' : 'unarchived'
-    });
+    sendGAEvent('archive_content', { content_type: 'razonete', item_id: id });
     setRazonetes(razonetes.map(r => r.id === id ? { ...r, archived: !r.archived } : r)); 
   };
   
@@ -725,15 +836,11 @@ const App = () => {
   };
 
   const exportCSV = () => {
-    // TRACKING: Evento de download do CSV geral
     sendGAEvent('file_download', { file_extension: 'csv', file_name: 'exportacao_dados', project: projects.find(p => p.id === currentProjectId)?.name });
-
     let csv = "data:text/csv;charset=utf-8,\uFEFF";
     const currentProjectName = projects.find(p => p.id === currentProjectId)?.name || 'Projeto';
     csv += `Projeto;ID_${t.accountName};${t.accountName};Status;${t.nature};${t.type};${t.value};${t.ref};${t.date};Nota\n`;
-    
     const projectRazonetes = razonetes.filter(r => r.projectId === currentProjectId);
-
     projectRazonetes.forEach(r => {
       r.entries.forEach(e => {
         const row = [
@@ -770,7 +877,19 @@ const App = () => {
                 <h1 className="text-xl font-bold text-slate-900 leading-none">
                   {t.appTitle} {showArchived && <span className="text-slate-400 text-sm font-normal">({t.archivedView})</span>}
                 </h1>
-                <p className="text-xs text-slate-500 mt-1">{t.appSubtitle}</p>
+                <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                  {t.appSubtitle}
+                  {/* Indicador de Status da Nuvem */}
+                  {user ? (
+                    <span className="ml-2 flex items-center gap-1 text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full border border-green-200">
+                      <Cloud size={10} /> {isSyncing ? t.syncing : t.cloudStorage}
+                    </span>
+                  ) : (
+                    <span className="ml-2 flex items-center gap-1 text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full border border-slate-200">
+                      <CloudOff size={10} /> {t.localStorage}
+                    </span>
+                  )}
+                </p>
               </div>
             </div>
             <div className="hidden md:block h-8 w-px bg-slate-200 mx-2"></div>
@@ -812,7 +931,10 @@ const App = () => {
               onClear={requestClearAll} 
               onChangeLang={setCurrentLang} 
               currentLang={currentLang} 
-              t={t} 
+              t={t}
+              user={user}
+              onLogin={handleLogin}
+              onLogout={handleLogout}
             />
           </div>
         </div>

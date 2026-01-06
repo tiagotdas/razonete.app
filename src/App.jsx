@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-// Removida a dependência externa que causava erro
 import { initializeApp } from "firebase/app";
 import { 
   getAuth, 
@@ -300,7 +299,6 @@ const TAccountVisual = ({ entries, onDeleteEntry, lang, t }) => {
   );
 };
 
-// ATUALIZADO: Suporte a Drag & Drop Nativo
 const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t, onDragStart, onDragOver, onDrop }) => {
   const today = getLocalDateISO();
   const [inputs, setInputs] = useState({ debit: '', credit: '', ref: '', date: today });
@@ -348,7 +346,6 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t, onD
       onDrop={onDrop}
     >
       <div className="relative pr-16 pl-6"> 
-        {/* GRIP DE ARRASTAR */}
         <div className="absolute left-0 top-1 bottom-0 w-8 flex items-start justify-center pt-1 cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 transition-colors" title="Arrastar para mover">
           <GripVertical size={18} />
         </div>

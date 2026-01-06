@@ -4,50 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- Favicon SVG (Balança Azul - Branding Profissional) -->
+    <!-- Favicon SVG -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z'/%3E%3Cpath d='m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z'/%3E%3Cpath d='M7 21h10'/%3E%3Cpath d='M12 3v18'/%3E%3Cpath d='M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2'/%3E%3C/svg%3E" />
     <meta name="theme-color" content="#2563eb" />
 
-    <!-- SEO Título Otimizado: Palavra-chave principal à esquerda -->
-    <title>Razonete Online | Simulador de Contabilidade e Auditoria (Grátis)</title>
+    <!-- SEO Título & Meta (Serão atualizados via JS, mas mantemos o padrão PT) -->
+    <title data-i18n="pageTitle">Razonete Online | Simulador de Contabilidade e Auditoria</title>
+    <meta name="description" content="Faça razonetes online de forma rápida e gratuita. A ferramenta definitiva para entender Débito, Crédito e Partidas Dobradas.">
     
-    <!-- Meta Description focado na intenção de busca -->
-    <meta name="description" content="Faça razonetes online de forma rápida e gratuita. A ferramenta definitiva para entender Débito, Crédito e Partidas Dobradas. Ideal para contadores e estudantes.">
-    <meta name="keywords" content="razonete, razonete online, contabilidade, partidas dobradas, débito e crédito, t-account, simulador contábil">
-    <meta name="author" content="Tiago de Amorim Silva">
-    
-    <!-- Open Graph / Social -->
+    <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://razonete.app.br/">
-    <meta property="og:title" content="Razonete Online - A ferramenta do Contador Moderno">
+    <meta property="og:title" content="Razonete Pro | Auditoria & Controladoria">
     <meta property="og:description" content="Esqueça o papel. Simule lançamentos contábeis, gere balancetes e exporte para Excel. Gratuito.">
     <meta property="og:image" content="https://placehold.co/1200x630/1e293b/cbd5e1?text=Razonete+Online:+Auditoria+e+Contabilidade">
 
-    <!-- JSON-LD (Dados Estruturados para o Google) -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "Razonete Pro",
-      "operatingSystem": "Web Browser",
-      "applicationCategory": "FinanceApplication",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "BRL"
-      },
-      "description": "Simulador de razonetes contábeis online com validação de partidas dobradas e geração de balancete.",
-      "author": {
-        "@type": "Person",
-        "name": "Tiago de Amorim Silva",
-        "jobTitle": "Contador & Data Scientist"
-      }
-    }
-    </script>
-
+    <!-- Tailwind CSS & Icons -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    
     <style>
         body { font-family: 'Inter', sans-serif; }
         .hero-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
@@ -56,9 +32,8 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        /* Efeito de T-Account CSS Puro para a Demo */
-        .t-account-line { position: relative; width: 100%; height: 2px; background-color: #cbd5e1; margin-top: 2rem; margin-bottom: 0.5rem; }
-        .t-account-middle { position: absolute; top: 0; left: 50%; width: 2px; height: 120px; background-color: #cbd5e1; transform: translateX(-50%); }
+        /* Dropdown de Idioma */
+        .lang-dropdown:hover .lang-menu { display: block; }
     </style>
 </head>
 <body class="text-slate-600 bg-white">
@@ -67,21 +42,44 @@
     <nav class="fixed w-full z-50 bg-white/90 backdrop-blur-md border-b border-slate-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
                 <div class="flex items-center gap-2">
                     <div class="bg-blue-600 text-white p-2 rounded-lg">
                         <i class="fa-solid fa-scale-balanced text-xl"></i>
                     </div>
                     <span class="font-bold text-xl text-slate-900 tracking-tight">Razonete Pro</span>
                 </div>
-                <div class="hidden md:flex space-x-8">
-                    <a href="#funcionalidades" class="text-slate-600 hover:text-blue-600 font-medium transition">O que é</a>
-                    <a href="#educacional" class="text-slate-600 hover:text-blue-600 font-medium transition">Como Funciona</a>
-                    <a href="https://razonete.app.br/" class="text-blue-600 font-bold hover:underline transition">Ir para o App</a>
-                </div>
-                <div>
-                    <a href="https://razonete.app.br/" class="hidden md:inline-flex items-center justify-center px-6 py-2 border border-transparent text-sm font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition shadow-lg shadow-blue-600/20">
-                        Usar Razonete Online
+
+                <!-- Links Desktop -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#funcionalidades" class="text-slate-600 hover:text-blue-600 font-medium transition" data-i18n="navWhatIs">O que é</a>
+                    <a href="#educacional" class="text-slate-600 hover:text-blue-600 font-medium transition" data-i18n="navHowWorks">Como Funciona</a>
+                    <a href="https://razonete.app.br/" class="text-blue-600 font-bold hover:underline transition" data-i18n="navGoToApp">Ir para o App</a>
+                    
+                    <!-- Language Selector -->
+                    <div class="relative lang-dropdown py-4">
+                        <button class="flex items-center gap-1 text-slate-500 hover:text-blue-600 font-bold uppercase transition">
+                            <i class="fa-solid fa-globe mr-1"></i> <span id="current-lang">PT</span> <i class="fa-solid fa-chevron-down text-xs"></i>
+                        </button>
+                        <div class="lang-menu absolute right-0 top-full w-32 bg-white border border-slate-100 shadow-xl rounded-lg hidden pt-2 overflow-hidden">
+                            <button onclick="changeLanguage('pt')" class="block w-full text-left px-4 py-2 hover:bg-slate-50 text-sm text-slate-600 hover:text-blue-600">Português</button>
+                            <button onclick="changeLanguage('en')" class="block w-full text-left px-4 py-2 hover:bg-slate-50 text-sm text-slate-600 hover:text-blue-600">English</button>
+                            <button onclick="changeLanguage('es')" class="block w-full text-left px-4 py-2 hover:bg-slate-50 text-sm text-slate-600 hover:text-blue-600">Español</button>
+                        </div>
+                    </div>
+
+                    <a href="https://razonete.app.br/" class="inline-flex items-center justify-center px-6 py-2 border border-transparent text-sm font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition shadow-lg shadow-blue-600/20" data-i18n="ctaButtonNav">
+                        Usar Online
                     </a>
+                </div>
+
+                <!-- Mobile Menu Button (Simplificado) -->
+                <div class="md:hidden flex items-center gap-4">
+                     <!-- Mobile Lang Selector -->
+                     <button onclick="cycleLanguage()" class="text-slate-500 font-bold uppercase border border-slate-200 rounded px-2 py-1 text-xs">
+                        <span id="mobile-lang">PT</span>
+                    </button>
+                    <a href="https://razonete.app.br/" class="text-blue-600 font-bold text-sm" data-i18n="navGoToApp">App</a>
                 </div>
             </div>
         </div>
@@ -92,137 +90,75 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
             <div class="text-center max-w-4xl mx-auto">
                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-900/30 border border-blue-700/50 text-blue-300 text-xs font-semibold uppercase tracking-wide mb-6">
-                    <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span> App de Contabilidade Gratuito
+                    <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span> <span data-i18n="heroBadge">App de Contabilidade Gratuito</span>
                 </div>
                 <h1 class="text-4xl lg:text-6xl font-extrabold text-white tracking-tight mb-6 leading-tight">
-                    Faça seu <span class="text-gradient">Razonete Online</span> <br> sem planilhas complicadas.
+                    <span data-i18n="heroTitleStart">Faça seu</span> <span class="text-gradient" data-i18n="heroTitleHighlight">Razonete Online</span> <br> <span data-i18n="heroTitleEnd">sem planilhas complicadas.</span>
                 </h1>
-                <p class="text-lg text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed">
+                <p class="text-lg text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed" data-i18n="heroDesc">
                     A ferramenta ideal para estudantes e auditores. Simule lançamentos de débito e crédito, visualize o gráfico em T e feche o balancete automaticamente.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     <a href="https://razonete.app.br/" class="inline-flex items-center justify-center px-8 py-4 text-base font-bold rounded-xl text-white bg-blue-600 hover:bg-blue-500 transition shadow-xl shadow-blue-900/20 transform hover:-translate-y-1">
-                        Criar Razonete Agora
+                        <span data-i18n="ctaHero">Criar Razonete Agora</span>
                         <i class="fa-solid fa-arrow-right ml-2"></i>
                     </a>
                 </div>
             </div>
             
-            <!-- Hero Interface Mockup (Substituindo a imagem estática por HTML/CSS) -->
+            <!-- Hero Interface Mockup -->
             <div class="mt-16 relative mx-auto max-w-5xl transform rotate-1 hover:rotate-0 transition duration-700">
-                <!-- Efeito de brilho de fundo -->
                 <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl blur opacity-30"></div>
-                
-                <!-- Janela do App -->
                 <div class="relative rounded-xl border border-slate-700 bg-slate-900 shadow-2xl overflow-hidden">
-                    <!-- Barra de Título (Fake Browser) -->
                     <div class="bg-slate-800 border-b border-slate-700 px-4 py-3 flex items-center gap-2">
-                        <div class="flex gap-1.5">
-                            <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                            <div class="w-3 h-3 rounded-full bg-amber-500"></div>
-                            <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
-                        </div>
-                        <div class="ml-4 bg-slate-900 rounded-md px-3 py-1 text-xs text-slate-400 flex items-center gap-2 w-64 border border-slate-700">
-                            <i class="fa-solid fa-lock text-[10px]"></i> razonete.app.br
-                        </div>
+                        <div class="flex gap-1.5"><div class="w-3 h-3 rounded-full bg-red-500"></div><div class="w-3 h-3 rounded-full bg-amber-500"></div><div class="w-3 h-3 rounded-full bg-emerald-500"></div></div>
+                        <div class="ml-4 bg-slate-900 rounded-md px-3 py-1 text-xs text-slate-400 flex items-center gap-2 w-64 border border-slate-700"><i class="fa-solid fa-lock text-[10px]"></i> razonete.app.br</div>
                     </div>
-
-                    <!-- Corpo do App Simulado -->
                     <div class="bg-slate-50 p-6 md:p-8">
-                        <!-- Header Interno -->
                         <div class="flex justify-between items-center mb-8">
-                            <div class="flex gap-2">
-                                <div class="bg-blue-600 text-white p-1.5 rounded shadow"><i class="fa-solid fa-scale-balanced"></i></div>
-                                <span class="font-bold text-slate-800 text-lg">Razonete Pro</span>
-                            </div>
-                            <div class="flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">
-                                <i class="fa-solid fa-check-circle"></i> Partidas Dobradas: OK
-                            </div>
+                            <div class="flex gap-2"><div class="bg-blue-600 text-white p-1.5 rounded shadow"><i class="fa-solid fa-scale-balanced"></i></div><span class="font-bold text-slate-800 text-lg">Razonete Pro</span></div>
+                            <div class="flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold"><i class="fa-solid fa-check-circle"></i> <span data-i18n="mockupStatus">Partidas Dobradas: OK</span></div>
                         </div>
-
-                        <!-- Grid de Razonetes -->
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            
-                            <!-- Card 1: Caixa -->
+                            <!-- Card 1 -->
                             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative">
-                                <div class="flex justify-between items-center mb-2">
-                                    <h4 class="font-bold text-slate-800 text-lg">Caixa (Ativo)</h4>
-                                </div>
-                                <!-- T Visual -->
+                                <div class="flex justify-between items-center mb-2"><h4 class="font-bold text-slate-800 text-lg" data-i18n="mockupAcc1">Caixa (Ativo)</h4></div>
                                 <div class="relative mt-2 mb-2">
-                                    <div class="border-t-2 border-slate-300 w-full absolute top-6 left-0"></div>
-                                    <div class="absolute top-6 left-1/2 w-0.5 h-32 bg-slate-300 -translate-x-1/2"></div>
-                                    <div class="flex justify-between text-xs font-bold text-slate-400 px-2 mb-2">
-                                        <span>Débito</span><span>Crédito</span>
-                                    </div>
+                                    <div class="border-t-2 border-slate-300 w-full absolute top-6 left-0"></div><div class="absolute top-6 left-1/2 w-0.5 h-32 bg-slate-300 -translate-x-1/2"></div>
+                                    <div class="flex justify-between text-xs font-bold text-slate-400 px-2 mb-2"><span data-i18n="debit">Débito</span><span data-i18n="credit">Crédito</span></div>
                                     <div class="flex w-full h-32 text-sm font-mono relative z-10">
-                                        <div class="w-1/2 pr-2 border-r border-transparent">
-                                            <div class="flex justify-between text-blue-700 py-1 border-b border-slate-50">
-                                                <span class="text-[10px] text-slate-400">Ref. Cap</span> <span>10.000</span>
-                                            </div>
-                                        </div>
-                                        <div class="w-1/2 pl-2 text-right">
-                                            <div class="flex justify-end gap-2 text-red-700 py-1 border-b border-slate-50">
-                                                <span>2.000</span> <span class="text-[10px] text-slate-400 self-center">Ref. Móv</span>
-                                            </div>
-                                        </div>
+                                        <div class="w-1/2 pr-2 border-r border-transparent"><div class="flex justify-between text-blue-700 py-1 border-b border-slate-50"><span class="text-[10px] text-slate-400">Ref. Cap</span> <span>10.000</span></div></div>
+                                        <div class="w-1/2 pl-2 text-right"><div class="flex justify-end gap-2 text-red-700 py-1 border-b border-slate-50"><span>2.000</span> <span class="text-[10px] text-slate-400 self-center">Ref. Móv</span></div></div>
                                     </div>
                                 </div>
-                                <div class="bg-blue-50 text-blue-800 p-2 rounded text-center font-bold text-sm border border-blue-100">
-                                    Saldo Devedor: R$ 8.000,00
-                                </div>
+                                <div class="bg-blue-50 text-blue-800 p-2 rounded text-center font-bold text-sm border border-blue-100"><span data-i18n="mockupDebitBal">Saldo Devedor</span>: 8.000</div>
                             </div>
-
-                            <!-- Card 2: Capital Social -->
-                            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hidden md:block">
-                                <div class="flex justify-between items-center mb-2">
-                                    <h4 class="font-bold text-slate-800 text-lg">Capital Social (PL)</h4>
-                                </div>
+                             <!-- Card 2 -->
+                             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hidden md:block">
+                                <div class="flex justify-between items-center mb-2"><h4 class="font-bold text-slate-800 text-lg" data-i18n="mockupAcc2">Capital Social (PL)</h4></div>
                                 <div class="relative mt-2 mb-2">
-                                    <div class="border-t-2 border-slate-300 w-full absolute top-6 left-0"></div>
-                                    <div class="absolute top-6 left-1/2 w-0.5 h-32 bg-slate-300 -translate-x-1/2"></div>
-                                    <div class="flex justify-between text-xs font-bold text-slate-400 px-2 mb-2">
-                                        <span>Débito</span><span>Crédito</span>
-                                    </div>
+                                    <div class="border-t-2 border-slate-300 w-full absolute top-6 left-0"></div><div class="absolute top-6 left-1/2 w-0.5 h-32 bg-slate-300 -translate-x-1/2"></div>
+                                    <div class="flex justify-between text-xs font-bold text-slate-400 px-2 mb-2"><span data-i18n="debit">Débito</span><span data-i18n="credit">Crédito</span></div>
                                     <div class="flex w-full h-32 text-sm font-mono relative z-10">
                                         <div class="w-1/2 pr-2"></div>
-                                        <div class="w-1/2 pl-2 text-right">
-                                            <div class="flex justify-end gap-2 text-red-700 py-1">
-                                                <span>10.000</span> <span class="text-[10px] text-slate-400 self-center">Ref. Cap</span>
-                                            </div>
-                                        </div>
+                                        <div class="w-1/2 pl-2 text-right"><div class="flex justify-end gap-2 text-red-700 py-1"><span>10.000</span> <span class="text-[10px] text-slate-400 self-center">Ref. Cap</span></div></div>
                                     </div>
                                 </div>
-                                <div class="bg-red-50 text-red-800 p-2 rounded text-center font-bold text-sm border border-red-100">
-                                    Saldo Credor: R$ 10.000,00
-                                </div>
+                                <div class="bg-red-50 text-red-800 p-2 rounded text-center font-bold text-sm border border-red-100"><span data-i18n="mockupCreditBal">Saldo Credor</span>: 10.000</div>
                             </div>
-
-                            <!-- Card 3: Móveis (AGORA VISÍVEL EM TODOS OS ECRÃS) -->
+                            <!-- Card 3 -->
                             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm opacity-60">
-                                <div class="flex justify-between items-center mb-2">
-                                    <h4 class="font-bold text-slate-800 text-lg">Móveis (Ativo)</h4>
-                                </div>
+                                <div class="flex justify-between items-center mb-2"><h4 class="font-bold text-slate-800 text-lg" data-i18n="mockupAcc3">Móveis (Ativo)</h4></div>
                                 <div class="relative mt-2 mb-2">
-                                    <div class="border-t-2 border-slate-300 w-full absolute top-6 left-0"></div>
-                                    <div class="absolute top-6 left-1/2 w-0.5 h-32 bg-slate-300 -translate-x-1/2"></div>
-                                    <div class="flex justify-between text-xs font-bold text-slate-400 px-2 mb-2">
-                                        <span>Débito</span><span>Crédito</span>
-                                    </div>
+                                    <div class="border-t-2 border-slate-300 w-full absolute top-6 left-0"></div><div class="absolute top-6 left-1/2 w-0.5 h-32 bg-slate-300 -translate-x-1/2"></div>
+                                    <div class="flex justify-between text-xs font-bold text-slate-400 px-2 mb-2"><span data-i18n="debit">Débito</span><span data-i18n="credit">Crédito</span></div>
                                     <div class="flex w-full h-32 text-sm font-mono relative z-10">
-                                        <div class="w-1/2 pr-2">
-                                            <div class="flex justify-between text-blue-700 py-1">
-                                                <span class="text-[10px] text-slate-400">Ref. Móv</span> <span>2.000</span>
-                                            </div>
-                                        </div>
+                                        <div class="w-1/2 pr-2"><div class="flex justify-between text-blue-700 py-1"><span class="text-[10px] text-slate-400">Ref. Móv</span> <span>2.000</span></div></div>
                                         <div class="w-1/2 pl-2 text-right"></div>
                                     </div>
                                 </div>
-                                <div class="bg-blue-50 text-blue-800 p-2 rounded text-center font-bold text-sm border border-blue-100">
-                                    Saldo Devedor: R$ 2.000,00
-                                </div>
+                                <div class="bg-blue-50 text-blue-800 p-2 rounded text-center font-bold text-sm border border-blue-100"><span data-i18n="mockupDebitBal">Saldo Devedor</span>: 2.000</div>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -230,57 +166,52 @@
         </div>
     </section>
 
-    <!-- SEO CONTENT SECTION (EDUCACIONAL) -->
-    <!-- Esta seção é crucial para rankear em "O que é razonete" -->
+    <!-- EDUCATIONAL SECTION -->
     <section class="py-24 bg-white" id="educacional">
         <div class="max-w-4xl mx-auto px-4">
             <div class="text-center mb-16">
-                <h2 class="text-3xl font-bold text-slate-900">Entendendo a Lógica do Razonete</h2>
-                <p class="mt-4 text-slate-600">Por que profissionais e estudantes da FGV e das melhores universidades usam esta ferramenta?</p>
+                <h2 class="text-3xl font-bold text-slate-900" data-i18n="eduTitle">Entendendo a Lógica do Razonete</h2>
+                <p class="mt-4 text-slate-600" data-i18n="eduSubtitle">Por que profissionais e estudantes da FGV e das melhores universidades usam esta ferramenta?</p>
             </div>
-
             <div class="prose prose-lg text-slate-600 mx-auto">
-                <h3 class="text-2xl font-bold text-slate-800 mb-4">O que é um Razonete (Conta em T)?</h3>
-                <p class="mb-6">
+                <h3 class="text-2xl font-bold text-slate-800 mb-4" data-i18n="eduQ1">O que é um Razonete (Conta em T)?</h3>
+                <p class="mb-6" data-i18n="eduA1">
                     O <strong>razonete</strong>, também conhecido como "Gráfico em T" ou "Conta em T", é a representação gráfica simplificada de uma conta contábil do Livro Razão. Ele permite visualizar de forma didática os movimentos de <strong>Débito</strong> (lado esquerdo) e <strong>Crédito</strong> (lado direito) de cada conta.
                 </p>
-
-                <h3 class="text-2xl font-bold text-slate-800 mb-4">Como funciona o Método das Partidas Dobradas?</h3>
-                <p class="mb-6">
+                <h3 class="text-2xl font-bold text-slate-800 mb-4" data-i18n="eduQ2">Como funciona o Método das Partidas Dobradas?</h3>
+                <p class="mb-6" data-i18n="eduA2">
                     Fundamental na contabilidade, este método dita que para cada lançamento a débito, deve haver um lançamento correspondente a crédito de igual valor. O <strong>Razonete Pro</strong> possui um algoritmo exclusivo que valida essa igualdade em tempo real, impedindo erros comuns em balancetes de verificação.
                 </p>
-
-                <h3 class="text-2xl font-bold text-slate-800 mb-4">Natureza das Contas: Devedora vs. Credora</h3>
+                <h3 class="text-2xl font-bold text-slate-800 mb-4" data-i18n="eduQ3">Natureza das Contas: Devedora vs. Credora</h3>
                 <ul class="list-disc pl-6 mb-8 space-y-2">
-                    <li><strong>Ativo e Despesas:</strong> Possuem natureza devedora. Aumentam a débito e diminuem a crédito.</li>
-                    <li><strong>Passivo, PL e Receitas:</strong> Possuem natureza credora. Aumentam a crédito e diminuem a débito.</li>
+                    <li data-i18n="eduLi1"><strong>Ativo e Despesas:</strong> Possuem natureza devedora. Aumentam a débito e diminuem a crédito.</li>
+                    <li data-i18n="eduLi2"><strong>Passivo, PL e Receitas:</strong> Possuem natureza credora. Aumentam a crédito e diminuem a débito.</li>
                 </ul>
-                
-                <p class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-600 text-blue-800 font-medium">
+                <p class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-600 text-blue-800 font-medium" data-i18n="eduBox">
                     A nossa ferramenta automatiza essa lógica. Ao inserir os valores, o sistema calcula o saldo final instantaneamente, respeitando a natureza contábil, e gera um balancete pronto para auditoria.
                 </p>
             </div>
         </div>
     </section>
 
-    <!-- FEATURES GRID (OTIMIZADO PARA PALAVRAS-CHAVE) -->
+    <!-- FEATURES -->
     <section class="py-24 bg-slate-50" id="funcionalidades">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
                     <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center text-indigo-600 mb-6"><i class="fa-solid fa-list-check"></i></div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">Balancete de Verificação</h3>
-                    <p class="text-slate-600 text-sm">Gera automaticamente o relatório final, somando saldos devedores e credores para auditoria rápida.</p>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3" data-i18n="feat1Title">Balancete de Verificação</h3>
+                    <p class="text-slate-600 text-sm" data-i18n="feat1Desc">Gera automaticamente o relatório final, somando saldos devedores e credores para auditoria rápida.</p>
                 </div>
                 <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
                     <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600 mb-6"><i class="fa-solid fa-file-csv"></i></div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">Exportação Excel/CSV</h3>
-                    <p class="text-slate-600 text-sm">Exporte seus razonetes para análise de dados (Data Science) ou para entregar trabalhos acadêmicos.</p>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3" data-i18n="feat2Title">Exportação Excel/CSV</h3>
+                    <p class="text-slate-600 text-sm" data-i18n="feat2Desc">Exporte seus razonetes para análise de dados (Data Science) ou para entregar trabalhos acadêmicos.</p>
                 </div>
                 <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
                     <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center text-amber-600 mb-6"><i class="fa-solid fa-cloud"></i></div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">100% Online e Seguro</h3>
-                    <p class="text-slate-600 text-sm">Funciona no navegador sem instalar nada. Seus dados podem ser salvos na nuvem com login seguro.</p>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3" data-i18n="feat3Title">100% Online e Seguro</h3>
+                    <p class="text-slate-600 text-sm" data-i18n="feat3Desc">Funciona no navegador sem instalar nada. Seus dados podem ser salvos na nuvem com login seguro.</p>
                 </div>
             </div>
         </div>
@@ -292,7 +223,7 @@
             <div class="flex items-center gap-2">
                 <span class="font-bold text-slate-700">Razonete Pro</span>
             </div>
-            <div class="text-slate-500 text-sm">
+            <div class="text-slate-500 text-sm" data-i18n="footerRights">
                 &copy; 2026 Razonete Pro. Ferramenta de Auditoria e Contabilidade Online.
             </div>
             <div class="flex gap-4">
@@ -300,6 +231,102 @@
             </div>
         </div>
     </footer>
+
+    <!-- SCRIPT DE TRADUÇÃO -->
+    <script>
+        const translations = {
+            pt: {
+                pageTitle: "Razonete Online | Simulador de Contabilidade e Auditoria",
+                navWhatIs: "O que é", navHowWorks: "Como Funciona", navGoToApp: "Ir para o App", ctaButtonNav: "Usar Online",
+                heroBadge: "App de Contabilidade Gratuito", heroTitleStart: "Faça seu", heroTitleHighlight: "Razonete Online", heroTitleEnd: "sem planilhas complicadas.",
+                heroDesc: "A ferramenta ideal para estudantes e auditores. Simule lançamentos de débito e crédito, visualize o gráfico em T e feche o balancete automaticamente.",
+                ctaHero: "Criar Razonete Agora",
+                mockupStatus: "Partidas Dobradas: OK", mockupAcc1: "Caixa (Ativo)", mockupAcc2: "Capital Social (PL)", mockupAcc3: "Móveis (Ativo)",
+                debit: "Débito", credit: "Crédito", mockupDebitBal: "Saldo Devedor", mockupCreditBal: "Saldo Credor",
+                eduTitle: "Entendendo a Lógica do Razonete", eduSubtitle: "Por que profissionais e estudantes da FGV e das melhores universidades usam esta ferramenta?",
+                eduQ1: "O que é um Razonete (Conta em T)?", eduA1: "O <strong>razonete</strong>, também conhecido como 'Gráfico em T' ou 'Conta em T', é a representação gráfica simplificada de uma conta contábil do Livro Razão. Ele permite visualizar de forma didática os movimentos de <strong>Débito</strong> (lado esquerdo) e <strong>Crédito</strong> (lado direito) de cada conta.",
+                eduQ2: "Como funciona o Método das Partidas Dobradas?", eduA2: "Fundamental na contabilidade, este método dita que para cada lançamento a débito, deve haver um lançamento correspondente a crédito de igual valor. O <strong>Razonete Pro</strong> possui um algoritmo exclusivo que valida essa igualdade em tempo real, impedindo erros comuns em balancetes de verificação.",
+                eduQ3: "Natureza das Contas: Devedora vs. Credora",
+                eduLi1: "<strong>Ativo e Despesas:</strong> Possuem natureza devedora. Aumentam a débito e diminuem a crédito.",
+                eduLi2: "<strong>Passivo, PL e Receitas:</strong> Possuem natureza credora. Aumentam a crédito e diminuem a débito.",
+                eduBox: "A nossa ferramenta automatiza essa lógica. Ao inserir os valores, o sistema calcula o saldo final instantaneamente, respeitando a natureza contábil, e gera um balancete pronto para auditoria.",
+                feat1Title: "Balancete de Verificação", feat1Desc: "Gera automaticamente o relatório final, somando saldos devedores e credores para auditoria rápida.",
+                feat2Title: "Exportação Excel/CSV", feat2Desc: "Exporte seus razonetes para análise de dados (Data Science) ou para entregar trabalhos acadêmicos.",
+                feat3Title: "100% Online e Seguro", feat3Desc: "Funciona no navegador sem instalar nada. Seus dados podem ser salvos na nuvem com login seguro.",
+                footerRights: "&copy; 2026 Razonete Pro. Ferramenta de Auditoria e Contabilidade Online."
+            },
+            en: {
+                pageTitle: "Online T-Account | Accounting and Audit Simulator",
+                navWhatIs: "What is it", navHowWorks: "How it Works", navGoToApp: "Go to App", ctaButtonNav: "Use Online",
+                heroBadge: "Free Accounting App", heroTitleStart: "Create your", heroTitleHighlight: "Online T-Accounts", heroTitleEnd: "without complex spreadsheets.",
+                heroDesc: "The ideal tool for students and auditors. Simulate debit and credit entries, visualize the T-chart, and close the trial balance automatically.",
+                ctaHero: "Create T-Account Now",
+                mockupStatus: "Double Entry: OK", mockupAcc1: "Cash (Asset)", mockupAcc2: "Share Capital (Equity)", mockupAcc3: "Furniture (Asset)",
+                debit: "Debit", credit: "Credit", mockupDebitBal: "Debit Balance", mockupCreditBal: "Credit Balance",
+                eduTitle: "Understanding T-Account Logic", eduSubtitle: "Why professionals and students from top universities use this tool?",
+                eduQ1: "What is a T-Account?", eduA1: "The <strong>T-Account</strong> is the simplified graphic representation of a General Ledger account. It allows you to visualize <strong>Debit</strong> (left side) and <strong>Credit</strong> (right side) movements for each account.",
+                eduQ2: "How does Double-Entry Bookkeeping work?", eduA2: "Fundamental in accounting, this method dictates that for every debit entry, there must be a corresponding credit entry of equal value. <strong>Razonete Pro</strong> has a unique algorithm that validates this equality in real-time, preventing common trial balance errors.",
+                eduQ3: "Nature of Accounts: Debit vs. Credit",
+                eduLi1: "<strong>Assets and Expenses:</strong> Have a debit nature. Increase with debit and decrease with credit.",
+                eduLi2: "<strong>Liabilities, Equity, and Revenue:</strong> Have a credit nature. Increase with credit and decrease with debit.",
+                eduBox: "Our tool automates this logic. When you enter values, the system calculates the final balance instantly, respecting the accounting nature, and generates an audit-ready trial balance.",
+                feat1Title: "Trial Balance", feat1Desc: "Automatically generates the final report, summing debit and credit balances for quick auditing.",
+                feat2Title: "Excel/CSV Export", feat2Desc: "Export your T-accounts for data analysis (Data Science) or academic assignments.",
+                feat3Title: "100% Online and Secure", feat3Desc: "Works in the browser without installing anything. Your data can be saved to the cloud with secure login.",
+                footerRights: "&copy; 2026 Razonete Pro. Online Audit and Accounting Tool."
+            },
+            es: {
+                pageTitle: "Cuenta T Online | Simulador de Contabilidad y Auditoría",
+                navWhatIs: "Qué es", navHowWorks: "Cómo Funciona", navGoToApp: "Ir a la App", ctaButtonNav: "Usar Online",
+                heroBadge: "App de Contabilidad Gratuita", heroTitleStart: "Haga su", heroTitleHighlight: "Cuenta T Online", heroTitleEnd: "sin hojas de cálculo complicadas.",
+                heroDesc: "La herramienta ideal para estudiantes y auditores. Simule asientos de débito y crédito, visualice el gráfico en T y cierre el balance automáticamente.",
+                ctaHero: "Crear Cuenta T Ahora",
+                mockupStatus: "Partida Doble: OK", mockupAcc1: "Caja (Activo)", mockupAcc2: "Capital Social (Patrimonio)", mockupAcc3: "Muebles (Activo)",
+                debit: "Débito", credit: "Crédito", mockupDebitBal: "Saldo Deudor", mockupCreditBal: "Saldo Acreedor",
+                eduTitle: "Entendiendo la Lógica de la Cuenta T", eduSubtitle: "¿Por qué profesionales y estudiantes de las mejores universidades usan esta herramienta?",
+                eduQ1: "¿Qué es una Cuenta T (Razonete)?", eduA1: "La <strong>Cuenta T</strong>, o esquema de mayor, es la representación gráfica simplificada de una cuenta contable. Permite visualizar didácticamente los movimientos de <strong>Débito</strong> (lado izquierdo) y <strong>Crédito</strong> (lado derecho).",
+                eduQ2: "¿Cómo funciona el Método de Partida Doble?", eduA2: "Fundamental en contabilidad, este método dicta que para cada asiento de débito debe haber un asiento de crédito correspondiente de igual valor. <strong>Razonete Pro</strong> tiene un algoritmo único que valida esta igualdad en tiempo real.",
+                eduQ3: "Naturaleza de las Cuentas: Deudora vs. Acreedora",
+                eduLi1: "<strong>Activos y Gastos:</strong> Tienen naturaleza deudora. Aumentan con débito y disminuyen con crédito.",
+                eduLi2: "<strong>Pasivos, Patrimonio e Ingresos:</strong> Tienen naturaleza acreedora. Aumentan con crédito y disminuyen con débito.",
+                eduBox: "Nuestra herramienta automatiza esta lógica. Al insertar valores, el sistema calcula el saldo final instantáneamente y genera un balance listo para auditoría.",
+                feat1Title: "Balance de Comprobación", feat1Desc: "Genera automáticamente el informe final, sumando saldos deudores y acreedores para auditoría rápida.",
+                feat2Title: "Exportación Excel/CSV", feat2Desc: "Exporte sus cuentas T para análisis de datos (Data Science) o trabajos académicos.",
+                feat3Title: "100% Online y Seguro", feat3Desc: "Funciona en el navegador sin instalar nada. Sus datos pueden guardarse en la nube con inicio de sesión seguro.",
+                footerRights: "&copy; 2026 Razonete Pro. Herramienta de Auditoría y Contabilidad Online."
+            }
+        };
+
+        function changeLanguage(lang) {
+            // Atualizar textos simples
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    // Se a chave for para o título da página
+                    if(key === 'pageTitle') {
+                        document.title = translations[lang][key];
+                    } 
+                    // Se a chave contiver HTML (como negrito)
+                    else if (['eduA1', 'eduA2', 'eduLi1', 'eduLi2'].includes(key)) {
+                        element.innerHTML = translations[lang][key];
+                    }
+                    else {
+                        element.textContent = translations[lang][key];
+                    }
+                }
+            });
+
+            // Atualizar indicador de idioma
+            document.getElementById('current-lang').textContent = lang.toUpperCase();
+            document.getElementById('mobile-lang').textContent = lang.toUpperCase();
+        }
+
+        function cycleLanguage() {
+            const current = document.getElementById('mobile-lang').textContent.toLowerCase();
+            const next = current === 'pt' ? 'en' : (current === 'en' ? 'es' : 'pt');
+            changeLanguage(next);
+        }
+    </script>
 
 </body>
 </html>

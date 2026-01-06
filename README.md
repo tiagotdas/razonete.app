@@ -2,61 +2,53 @@ Razonete Pro | Auditoria & Controladoria Visual
 
 Acesse a aplicação: razonete.app.br
 
-O Razonete Pro é uma plataforma Cloud-Native desenvolvida para modernizar a visualização, auditoria e simulação de lançamentos contábeis. Combina a metáfora visual clássica dos Razonetes (T-Accounts) com a robustez de uma arquitetura de dados moderna, garantindo integridade e conformidade em tempo real.
+O Razonete Pro é uma plataforma Cloud-Native desenvolvida para modernizar a visualização, auditoria e simulação de lançamentos contábeis. A ferramenta digitaliza a metáfora visual clássica dos Razonetes (T-Accounts), adicionando uma camada de inteligência de dados, validação em tempo real e persistência na nuvem.
 
-Projeto desenvolvido com foco em Controladoria, Ciência de Dados e UX Corporativa.
+Projeto concebido e desenvolvido com foco na intersecção entre Controladoria, Ciência de Dados e UX Corporativa.
 
 🎯 O Problema & A Solução
 
-O Desafio: Auditores e Controllers operam frequentemente em dois extremos ineficientes: ERPs rígidos ("caixa-preta") ou folhas de cálculo frágeis e sem controlo de versão. A simulação de cenários complexos (fusões, ajustes de auditoria) carece de agilidade e rastreabilidade.
+O Desafio: Profissionais de contabilidade e estudantes operam frequentemente em dois extremos ineficientes: ERPs rígidos ("caixa-preta") onde a visualização do fluxo é difícil, ou folhas de cálculo frágeis e propensas a erros manuais. A simulação de cenários complexos (como ajustes de auditoria ou fusões) carece de agilidade e rastreabilidade.
 
-A Solução: Um ambiente SaaS seguro onde o profissional pode:
+A Solução: Um ambiente SaaS seguro e responsivo onde é possível:
 
-Simular lançamentos com validação imediata de Partidas Dobradas.
+Simular lançamentos com validação imediata do método das Partidas Dobradas.
 
-Gerir Múltiplos Cenários (Multitenancy Lógico) para diferentes clientes ou exercícios.
+Organizar visualmente as contas através de uma interface "Drag & Drop".
 
-Persistir Dados na Nuvem (Firebase) para acesso multidispositivo e segurança.
+Gerir Múltiplos Livros (Multitenancy Lógico) para diferentes clientes ou exercícios.
 
 Extrair Inteligência via exportação estruturada para ferramentas de BI e Data Science.
 
 🚀 Funcionalidades Implementadas
 
-Core Contábil
+Core Contábil & Auditoria
 
-Motor de Partidas Dobradas: Algoritmo reativo que monitoriza a equação ∑ Débitos = ∑ Créditos em tempo real, alertando sobre divergências.
+Motor de Partidas Dobradas: Algoritmo reativo que monitoriza a equação ∑ Débitos = ∑ Créditos em tempo real, alertando sobre divergências no milissegundo em que ocorrem.
 
-Balancete Interativo: Relatório de verificação com cross-footing automático.
+Balancete Interativo: Geração automática de relatório com cross-footing (soma cruzada) dos saldos.
 
-Filtros Temporais: Capacidade de gerar balancetes por período (Data Inicial / Data Final), respeitando o regime de competência.
+Filtros de Competência: Capacidade de filtrar o balancete por período (Data Inicial / Data Final), essencial para análises temporais.
 
-Gestão & Auditoria
+Gestão & Organização
 
-Multitenancy Lógico (Projetos): Criação e gestão de múltiplos cenários ("Cliente A", "Simulação Fusão") isolados dentro da mesma conta.
+Gestão de Livros/Empresas: Sistema que permite criar múltiplos cenários isolados (ex: "Cliente A", "Simulação Fusão").
 
-Audit Trail (Arquivamento): Sistema de soft delete que permite ocultar contas da visão operacional sem destruir o histórico do lançamento.
+Interface Drag & Drop: Organização visual das contas (Ativo, Passivo, PL) através de arrastar e soltar, utilizando API nativa do navegador para máxima performance.
 
-Modelo "Donationware": Integração de interface para apoio voluntário via Pix (QR Code dinâmico).
+Audit Trail (Arquivamento): Funcionalidade de soft delete que oculta contas da visão operacional sem destruir o histórico do lançamento.
 
 Arquitetura de Dados & Nuvem
 
-Sincronização Híbrida: O sistema funciona Offline (LocalStorage) e sincroniza com a Nuvem (Firestore) assim que o utilizador faz login.
+Sincronização Híbrida (Offline-First): O sistema funciona localmente (localStorage) para utilizadores anónimos e sincroniza com a nuvem (Firestore) assim que o utilizador faz login.
 
-Autenticação Segura: Integração com Google Auth (OAuth 2.0).
+Autenticação Segura: Integração com Google Auth (OAuth 2.0) para gestão de identidade.
 
-Feedback Visual: Indicadores de estado de gravação (Salvando, Salvo, Erro).
+Telemetria (GA4): Monitorização avançada de eventos de conversão e uso da ferramenta.
 
-Engenharia & UX
+📊 Para Cientistas de Dados
 
-Internacionalização (i18n): Suporte nativo e troca instantânea entre Português (BRL), Inglês (USD) e Espanhol (EUR).
-
-Telemetria (GA4): Monitorização de eventos de conversão, engajamento e funil de utilização.
-
-Responsividade: Interface adaptativa utilizando CSS Grid avançado para uso em Desktop e Mobile.
-
-📊 Para Cientistas de Dados & Auditores
-
-A ferramenta foi desenhada como um ETL Visual. Ao contrário de um ERP tradicional, o Razonete Pro permite a extração de datasets normalizados para ingestão em Python (Pandas/Scikit-Learn).
+A ferramenta foi arquitetada para funcionar como um ETL Visual. Ao contrário de um ERP tradicional, o Razonete Pro foca na extração de datasets normalizados para ingestão em Python (Pandas/Scikit-Learn) ou Power BI.
 
 Estrutura de Exportação (CSV):
 
@@ -66,29 +58,31 @@ Projeto;ID_Conta;Conta;Status;Natureza;Tipo;Valor;Ref;Data;Nota
 
 Casos de Uso de IA:
 
-Deteção de anomalias em lançamentos manuais (Benford's Law).
+Deteção de anomalias em lançamentos manuais (Lei de Benford).
 
 Previsão de fluxo de caixa baseada em séries temporais de simulação.
 
-Clustering de contas para revisão analítica.
+Clustering de contas para revisão analítica automatizada.
 
 🛠️ Stack Tecnológica
 
-O projeto segue princípios de Clean Architecture e Serverless:
+O projeto segue princípios de Clean Architecture e Serverless, minimizando dependências externas para garantir longevidade e segurança.
 
 Frontend: React 18 + Vite.
 
-Estilização: Tailwind CSS + Lucide React Icons.
+Linguagem: JavaScript (ES6+).
+
+Estilização: Tailwind CSS (Design System responsivo).
 
 Backend as a Service (BaaS): Firebase (Authentication & Firestore).
 
 Analytics: Google Analytics 4 (Event-based tracking).
 
-Deploy: CI/CD via GitHub Actions e infraestrutura GitHub Pages.
+CI/CD: GitHub Actions (Deploy automático).
 
 💻 Como Rodar Localmente
 
-Caso queira clonar e contribuir com o projeto:
+Para clonar e contribuir com o projeto:
 
 # 1. Clone o repositório
 git clone [https://github.com/tiagotdas/razonete.app.git](https://github.com/tiagotdas/razonete.app.git)
@@ -96,16 +90,15 @@ git clone [https://github.com/tiagotdas/razonete.app.git](https://github.com/tia
 # 2. Instale as dependências
 npm install
 
-# 3. Configure as variáveis de ambiente (Firebase)
-# Crie um arquivo .env na raiz com as suas chaves API
+# 3. Configure o Firebase
+# Adicione as suas chaves API no código ou variáveis de ambiente
 
-# 4. Rode o servidor de desenvolvimento
+# 4. Inicie o servidor de desenvolvimento
 npm run dev
 
 
 👨‍💻 Autor
 
-Tiago de Amorim Silva
-Contador & Cientista de Dados | MBA FGV
+Tiago de Amorim Silva Contador & Cientista de Dados | MBA FGV
 
 Desenvolvido como um ativo de portfólio que une o rigor da Controladoria com a inovação da Inteligência Artificial.

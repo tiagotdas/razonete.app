@@ -299,7 +299,7 @@ const TAccountVisual = ({ entries, onDeleteEntry, lang, t }) => {
   );
 };
 
-// ATUALIZADO: Layout de Inputs Corrigido para Data
+// ATUALIZADO: Layout de Inputs com Linha Dedicada para Ação
 const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t, onDragStart, onDragOver, onDrop }) => {
   const today = getLocalDateISO();
   const [inputs, setInputs] = useState({ debit: '', credit: '', ref: '', date: today });
@@ -368,7 +368,8 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t, onD
         </div>
       </div>
       {!data.archived && (
-        <div className="flex flex-col gap-2 mt-1">
+        <div className="flex flex-col gap-2 mt-2">
+          {/* Linha 1: Inputs de Valor */}
           <div className="grid grid-cols-2 gap-2">
             <div className="relative">
               <span className="absolute left-2 top-2 text-blue-300 text-xs font-bold pointer-events-none">D</span>
@@ -379,13 +380,14 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t, onD
               <input type="number" step="0.01" value={inputs.credit} onChange={(e) => setInputs({ ...inputs, credit: e.target.value })} onKeyDown={handleKeyDown} className="w-full pl-6 pr-2 py-2 border border-slate-200 rounded text-sm text-red-700 font-semibold focus:ring-2 focus:ring-red-100 focus:border-red-400 outline-none transition-all" placeholder="0,00" />
             </div>
           </div>
+          
+          {/* Linha 2: Metadados (Data e Ref) */}
           <div className="flex gap-2">
-            {/* CORREÇÃO UX: Proporções Flex ajustadas para não cortar a Data */}
-            <input 
+             <input 
               type="date" 
               value={inputs.date} 
               onChange={(e) => setInputs({ ...inputs, date: e.target.value })} 
-              className="flex-[1.4] min-w-0 px-2 py-2 border border-slate-200 rounded text-sm focus:border-blue-400 outline-none text-slate-600" 
+              className="w-3/5 px-2 py-2 border border-slate-200 rounded text-sm focus:border-blue-400 outline-none text-slate-600" 
               title={t.date} 
             />
             <input 
@@ -393,16 +395,18 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t, onD
               value={inputs.ref} 
               onChange={(e) => setInputs({ ...inputs, ref: e.target.value })} 
               onKeyDown={handleKeyDown} 
-              className="flex-[0.8] min-w-0 px-2 py-2 border border-slate-200 rounded text-sm focus:border-blue-400 outline-none" 
+              className="w-2/5 px-2 py-2 border border-slate-200 rounded text-sm focus:border-blue-400 outline-none" 
               placeholder={t.ref} 
             />
-            <button 
-              onClick={handleAddEntry} 
-              className="flex-[1] bg-slate-800 text-white rounded text-sm font-medium hover:bg-slate-700 active:scale-95 transition-all flex items-center justify-center gap-1 px-2"
-            >
-              {t.addEntry}
-            </button>
           </div>
+
+          {/* Linha 3: Botão de Ação */}
+          <button 
+            onClick={handleAddEntry} 
+            className="w-full bg-slate-800 text-white rounded text-sm font-medium hover:bg-slate-700 active:scale-95 transition-all flex items-center justify-center gap-1 py-2 mt-1"
+          >
+            {t.addEntry}
+          </button>
         </div>
       )}
       <textarea value={data.comment} onChange={(e) => onUpdate({ ...data, comment: e.target.value })} className="w-full text-xs p-2 border border-slate-200 rounded resize-y min-h-[40px] bg-slate-50 focus:bg-white focus:border-blue-400 outline-none transition-colors" placeholder={t.notes} disabled={data.archived} />
@@ -586,7 +590,7 @@ const ProjectManager = ({ projects, currentProjectId, onChangeProject, onCreateP
     <div className="relative w-full lg:w-auto">
       <button onClick={() => setIsOpen(!isOpen)} className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition shadow-sm w-full md:w-auto justify-between min-w-[200px]">
         <div className="flex items-center gap-2 truncate">
-          <Folder size={18} className="text-blue-600" />
+          <Book size={18} className="text-blue-600" />
           <div className="flex flex-col items-start leading-none">
             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{t.projects}</span>
             <span className="font-semibold text-slate-700 truncate max-w-[150px]">{currentProject?.name}</span>

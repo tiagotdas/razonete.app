@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+// Removida a dependência externa que causava erro
 import { initializeApp } from "firebase/app";
 import { 
   getAuth, 
@@ -42,7 +43,8 @@ import {
   Cloud,
   CloudOff,
   User,
-  Book // Novo ícone para representar "Livro"
+  Book,
+  GripVertical
 } from 'lucide-react';
 
 // --- CONFIGURAÇÃO DO FIREBASE (MODO DIRETO PARA WEB) ---
@@ -83,7 +85,7 @@ const sendGAEvent = (eventName, params = {}) => {
   }
 };
 
-// --- TRADUÇÕES (Atualizado para "Livro") ---
+// --- TRADUÇÕES ---
 const TRANSLATIONS = {
   pt: {
     debit: 'Débito',
@@ -151,13 +153,13 @@ const TRANSLATIONS = {
     copy: 'Copiar',
     copied: 'Copiado!',
     bankName: 'Banco: Nubank (Nu Pagamentos)',
-    projects: 'Livros / Empresas', // Alterado
-    newProject: 'Novo Livro',      // Alterado
-    projectNamePlaceholder: 'Nome da Empresa ou Livro', // Alterado
+    projects: 'Livros / Empresas', 
+    newProject: 'Novo Livro',      
+    projectNamePlaceholder: 'Nome da Empresa ou Livro', 
     create: 'Criar',
-    deleteProject: 'Excluir Livro', // Alterado
+    deleteProject: 'Excluir Livro', 
     confirmDeleteProject: 'Tem certeza? Isso apagará este Livro e todos os razonetes dentro dele.',
-    defaultProject: 'Livro Geral', // Alterado
+    defaultProject: 'Livro Geral', 
     inProject: 'em',
     moreOptions: 'Mais Opções',
     language: 'Idioma',
@@ -179,13 +181,13 @@ const TRANSLATIONS = {
     copy: 'Copy',
     copied: 'Copied!',
     bankName: 'Bank: Nubank',
-    projects: 'Books / Clients', // Alterado
-    newProject: 'New Book',      // Alterado
+    projects: 'Books / Clients', 
+    newProject: 'New Book',      
     projectNamePlaceholder: 'Client Name or Book',
     create: 'Create',
     deleteProject: 'Delete Book',
     confirmDeleteProject: 'Are you sure? This will delete the Book and all accounts within it.',
-    defaultProject: 'General Ledger', // Alterado
+    defaultProject: 'General Ledger', 
     inProject: 'in',
     moreOptions: 'More Options',
     language: 'Language',
@@ -207,13 +209,13 @@ const TRANSLATIONS = {
     copy: 'Copiar',
     copied: '¡Copiado!',
     bankName: 'Banco: Nubank',
-    projects: 'Libros / Clientes', // Alterado
-    newProject: 'Nuevo Libro',     // Alterado
-    projectNamePlaceholder: 'Nombre del Cliente o Libro',
+    projects: 'Escenarios',
+    newProject: 'Nuevo Proyecto',
+    projectNamePlaceholder: 'Nombre del Cliente o Escenario',
     create: 'Crear',
-    deleteProject: 'Eliminar Libro',
-    confirmDeleteProject: '¿Seguro? Esto eliminará el Libro y todas sus cuentas.',
-    defaultProject: 'Libro General', // Alterado
+    deleteProject: 'Eliminar Proyecto',
+    confirmDeleteProject: '¿Seguro? Esto eliminará el proyecto y todas sus cuentas.',
+    defaultProject: 'General (Principal)',
     inProject: 'en',
     moreOptions: 'Más Opciones',
     language: 'Idioma',
@@ -298,7 +300,8 @@ const TAccountVisual = ({ entries, onDeleteEntry, lang, t }) => {
   );
 };
 
-const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t }) => {
+// ATUALIZADO: Suporte a Drag & Drop Nativo
+const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t, onDragStart, onDragOver, onDrop }) => {
   const today = getLocalDateISO();
   const [inputs, setInputs] = useState({ debit: '', credit: '', ref: '', date: today });
 
@@ -337,9 +340,21 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t }) =
   const handleDeleteEntry = (entryId) => { onUpdate({ ...data, entries: data.entries.filter(e => e.id !== entryId) }); };
 
   return (
-    <div className={`bg-white rounded-xl shadow-sm hover:shadow-md border border-slate-200 p-4 flex flex-col gap-3 w-full transition-all duration-200 relative group ${data.archived ? 'opacity-90 border-dashed border-slate-300' : ''}`}>
-      <div className="relative pr-16">
+    <div 
+      className={`bg-white rounded-xl shadow-sm hover:shadow-md border border-slate-200 p-4 flex flex-col gap-3 w-full transition-all duration-200 relative group ${data.archived ? 'opacity-90 border-dashed border-slate-300' : ''}`}
+      draggable
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
+    >
+      <div className="relative pr-16 pl-6"> 
+        {/* GRIP DE ARRASTAR */}
+        <div className="absolute left-0 top-1 bottom-0 w-8 flex items-start justify-center pt-1 cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 transition-colors" title="Arrastar para mover">
+          <GripVertical size={18} />
+        </div>
+
         <input type="text" value={data.title} onChange={(e) => onUpdate({ ...data, title: e.target.value })} className="text-lg font-bold text-slate-800 w-full border-b border-transparent focus:border-blue-500 outline-none placeholder-slate-400 bg-transparent" placeholder={t.accountName} disabled={data.archived} />
+        
         <div className="absolute -top-1 -right-2 flex gap-1 z-10">
           <button type="button" onClick={() => onArchive(data.id)} className={`rounded-full p-2 transition-all ${data.archived ? 'text-blue-500 hover:bg-blue-50' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'}`} title={data.archived ? t.unarchive : t.archive}>
             {data.archived ? <ArchiveRestore size={18} /> : <Archive size={18} />}
@@ -737,10 +752,12 @@ const App = () => {
       }
     });
     return () => unsubscribe();
-  }, []);
+  }, []); // Executa uma vez no mount para configurar o listener
 
-  // Load Inicial (Local Storage)
+  // Load Inicial (Local Storage) - Só roda se NÃO estiver logado ou antes do auth
   useEffect(() => {
+    // Se estiver logado, o onAuthStateChanged cuida dos dados.
+    // Se não, carregamos do localStorage.
     if (!user) {
       const savedProjects = localStorage.getItem('razonetes_projects_v1');
       if (savedProjects) setProjects(JSON.parse(savedProjects));
@@ -748,6 +765,7 @@ const App = () => {
       const savedRazonetes = localStorage.getItem('razonetes_react_v1');
       if (savedRazonetes) {
         let parsedData = JSON.parse(savedRazonetes);
+        // CORREÇÃO: Usar data local para migração de dados locais
         const today = getLocalDateISO(); 
         let hasChanges = false;
         const migratedData = parsedData.map(r => {
@@ -774,29 +792,32 @@ const App = () => {
 
   // Persistência Unificada (Local + Cloud)
   useEffect(() => {
+    // 1. Sempre salva localmente (Backup/Offline)
     localStorage.setItem('razonetes_react_v1', JSON.stringify(razonetes));
     localStorage.setItem('razonetes_projects_v1', JSON.stringify(projects));
 
+    // 2. Se logado, salva na nuvem (Debounce simples para evitar muitas escritas)
     if (user && db) {
       const saveToCloud = async () => {
-        setIsSyncing(true);
+        setIsSyncing(true); // Indica que começou a salvar
         try {
           await setDoc(doc(db, "users", user.uid), {
             projects,
             razonetes,
             lastUpdate: new Date().toISOString(),
-            email: user.email
+            email: user.email // Útil para contato se permitido
           }, { merge: true });
-          setSaveError(false);
+          setSaveError(false); // Sucesso
         } catch (e) {
           console.error("Erro ao salvar na nuvem", e);
-          setSaveError(true);
+          setSaveError(true); // Ativa o alerta vermelho
         } finally {
+           // Pequeno delay para mostrar o ícone de salvamento
            setTimeout(() => setIsSyncing(false), 500);
         }
       };
       
-      const timeoutId = setTimeout(saveToCloud, 2000); 
+      const timeoutId = setTimeout(saveToCloud, 2000); // Espera 2s após última mudança
       return () => clearTimeout(timeoutId);
     }
   }, [razonetes, projects, user]);
@@ -817,11 +838,80 @@ const App = () => {
     if (!auth) return;
     try {
       await signOut(auth);
+      // Limpa estado ou recarrega do local?
+      // O useEffect do LocalStorage vai rodar quando user for null? Não automaticamente pois user é dependência.
+      // Melhor recarregar a página para garantir estado limpo do local storage
       window.location.reload(); 
     } catch (error) {
       console.error("Logout failed", error);
     }
   };
+
+  // --- LOGICA DE DRAG & DROP MANUAL (Nativo HTML5) ---
+  // Substituímos a lib externa por lógica nativa para garantir compatibilidade sem npm
+  const dragItem = useRef();
+  const dragOverItem = useRef();
+
+  const handleDragStart = (e, position) => {
+    dragItem.current = position;
+    e.target.classList.add('opacity-50');
+  };
+
+  const handleDragEnter = (e, position) => {
+    dragOverItem.current = position;
+  };
+
+  const handleDragEnd = (e) => {
+    e.target.classList.remove('opacity-50');
+    if (dragItem.current === null || dragOverItem.current === null) return;
+    
+    // Lógica de Reordenação
+    const items = [...visibleRazonetes];
+    const draggedItemContent = items[dragItem.current];
+    
+    // Remove do antigo e insere no novo
+    items.splice(dragItem.current, 1);
+    items.splice(dragOverItem.current, 0, draggedItemContent);
+
+    // Atualiza o estado global
+    // 1. Pega os que não são deste projeto
+    const otherRazonetes = razonetes.filter(r => r.projectId !== currentProjectId || (showArchived ? !r.archived : r.archived));
+    
+    // 2. Funde (mas cuidado: se o filtro visible excluir arquivados, eles podem sumir se não tratados)
+    // A melhor forma é: recriar a lista do projeto atual com a nova ordem
+    // e juntar com a lista dos outros projetos.
+    
+    // Simplificação segura:
+    // Mapeia os IDs na nova ordem
+    const newOrderIds = items.map(i => i.id);
+    
+    // Recria a lista completa baseada na nova ordem visual + os que não estão visíveis
+    // Isso é complexo. Vamos usar uma abordagem mais simples:
+    // Apenas atualizamos a lista `razonetes` se a reordenação for visual.
+    
+    // Vamos reconstruir o array `razonetes` completo:
+    const newRazonetes = [];
+    const processedIds = new Set();
+    
+    // Adiciona os visíveis na nova ordem
+    items.forEach(item => {
+      newRazonetes.push(item);
+      processedIds.add(item.id);
+    });
+    
+    // Adiciona o restante (de outros projetos ou arquivados/invisíveis)
+    razonetes.forEach(r => {
+      if (!processedIds.has(r.id)) {
+        newRazonetes.push(r);
+      }
+    });
+
+    setRazonetes(newRazonetes);
+    dragItem.current = null;
+    dragOverItem.current = null;
+    sendGAEvent('reorder_item', { item_category: 'razonete' });
+  };
+
 
   const currentProjectRazonetes = useMemo(() => {
     return razonetes.filter(r => r.projectId === currentProjectId); 
@@ -917,11 +1007,9 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800 pb-20">
-      {/* HEADER PRINCIPAL OTIMIZADO (NOVA UI) */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
         <div className="max-w-[1800px] mx-auto px-4 sm:px-6 py-3 flex flex-col lg:flex-row justify-between items-center gap-y-4 gap-x-6">
           
-          {/* SEÇÃO ESQUERDA: LOGO + LIVRO */}
           <div className="w-full lg:w-auto flex justify-between lg:justify-start items-center gap-4">
             <div className="flex items-center gap-3">
               <div className={`text-white p-2 rounded-lg shadow-lg transition-colors ${showArchived ? 'bg-slate-600 shadow-slate-200' : 'bg-blue-600 shadow-blue-200'}`}>
@@ -940,7 +1028,6 @@ const App = () => {
             <ProjectManager projects={projects} currentProjectId={currentProjectId} onChangeProject={setCurrentProjectId} onCreateProject={handleCreateProject} onDeleteProject={handleDeleteProjectRequest} t={t} />
           </div>
 
-          {/* SEÇÃO CENTRAL (STATUS + NUVEM) */}
           <div className="w-full lg:w-auto flex justify-center">
             <div className={`px-4 py-1.5 rounded-full flex items-center gap-2 text-xs font-bold shadow-sm transition-colors border ${globalStatus.isBalanced ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
               {globalStatus.isBalanced ? (
@@ -948,7 +1035,6 @@ const App = () => {
               ) : (
                 <><AlertTriangle size={14} /><span>{t.discrepancy}: {formatCurrency(globalStatus.diff, currentLang)}</span></>
               )}
-              {/* Divisor Status / Nuvem */}
               <div className="h-4 w-px bg-current opacity-30 mx-1"></div>
                {user ? (
                  <span className="flex items-center gap-1 opacity-80" title={saveError ? t.cloudError : t.cloudStorage}>
@@ -961,10 +1047,8 @@ const App = () => {
             </div>
           </div>
 
-          {/* SEÇÃO DIREITA (AÇÕES) */}
           <div className="w-full lg:w-auto flex justify-end items-center gap-2">
             
-            {/* Toolbar Principal */}
             <div className="flex items-center gap-2 mr-2">
               <button onClick={() => setIsDonationOpen(true)} className="flex items-center gap-2 px-3 py-2 bg-amber-100 text-amber-700 text-sm font-bold rounded-lg hover:bg-amber-200 transition border border-amber-200 shadow-sm" title={t.supportProject}>
                 <Coffee size={18} /> 
@@ -984,10 +1068,8 @@ const App = () => {
               </button>
             </div>
 
-            {/* Divisor */}
             <div className="h-8 w-px bg-slate-200 mx-1 hidden sm:block"></div>
             
-            {/* Auth e Menu Extra */}
             <AuthHeader user={user} onLogin={handleLogin} onLogout={handleLogout} t={t} />
 
             <MoreOptionsMenu 
@@ -1009,9 +1091,28 @@ const App = () => {
             <p className="text-slate-400">{showArchived ? '' : t.startAdding}<br/><span className="text-xs opacity-70 mt-2 block">{t.projects}: {projects.find(p => p.id === currentProjectId)?.name}</span></p>
           </div>
         ) : (
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-6 items-start">
-            {visibleRazonetes.map(razonete => (
-              <RazoneteCard key={razonete.id} data={razonete} onUpdate={updateRazonete} onDeleteRequest={requestDelete} onArchive={toggleArchive} lang={currentLang} t={t} />
+          <div className="flex flex-wrap gap-6 items-start">
+            {visibleRazonetes.map((razonete, index) => (
+              <div
+                key={razonete.id}
+                draggable
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragEnter={(e) => handleDragEnter(e, index)}
+                onDragEnd={handleDragEnd}
+                onDragOver={(e) => e.preventDefault()}
+                className="w-full md:w-[calc(50%-12px)] lg:w-[calc(33.33%-16px)] xl:w-[calc(25%-18px)] 2xl:w-[calc(20%-20px)] cursor-move transition-transform active:scale-105"
+              >
+                <RazoneteCard 
+                  data={razonete} 
+                  onUpdate={updateRazonete} 
+                  onDeleteRequest={requestDelete} 
+                  onArchive={toggleArchive} 
+                  lang={currentLang} 
+                  t={t} 
+                  // Passamos props vazios para compatibilidade se o componente esperar algo do dnd
+                  dragHandleProps={{}} 
+                />
+              </div>
             ))}
           </div>
         )}

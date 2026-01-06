@@ -44,7 +44,7 @@ import {
   User
 } from 'lucide-react';
 
-// --- CONFIGURAÇÃO DO FIREBASE ---
+// --- CONFIGURAÇÃO DO FIREBASE (MODO DIRETO PARA WEB) ---
 const firebaseConfig = {
   apiKey: "AIzaSyDByE5IapjOxWUJHeJ9u6Zen-XPdmRD7cg",
   authDomain: "razonete.firebaseapp.com",
@@ -67,14 +67,24 @@ if (firebaseConfig.apiKey) {
   }
 }
 
-// --- TELEMETRIA ---
+// --- UTILITÁRIO DE DATA (TIMEZONE FIX) ---
+// Função crítica para garantir que a data seja a do utilizador (Brasil), e não UTC (Londres)
+const getLocalDateISO = () => {
+  const date = new Date();
+  // Subtrai o offset do fuso horário para garantir a data local correta
+  return new Date(date.getTime() - (date.getTimezoneOffset() * 60000))
+    .toISOString()
+    .split('T')[0];
+};
+
+// --- TELEMETRIA: Google Analytics 4 Helper ---
 const sendGAEvent = (eventName, params = {}) => {
   if (typeof window !== 'undefined' && window.gtag) {
     window.gtag('event', eventName, params);
   }
 };
 
-// --- TRADUÇÕES ---
+// --- Dicionário de Traduções (I18n) ---
 const TRANSLATIONS = {
   pt: {
     debit: 'Débito',
@@ -287,7 +297,8 @@ const TAccountVisual = ({ entries, onDeleteEntry, lang, t }) => {
 };
 
 const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t }) => {
-  const today = new Date().toISOString().split('T')[0];
+  // CORREÇÃO: Usar data local para inicialização
+  const today = getLocalDateISO();
   const [inputs, setInputs] = useState({ debit: '', credit: '', ref: '', date: today });
 
   const totals = useMemo(() => {
@@ -316,6 +327,7 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t }) =
 
     if (added) {
       onUpdate({ ...data, entries: newEntries });
+      // Mantém a data do input anterior para agilidade, mas garante que não mude o fuso
       setInputs({ debit: '', credit: '', ref: '', date: inputs.date }); 
       document.getElementById(`debit-${data.id}`)?.focus();
     }
@@ -678,8 +690,21 @@ const App = () => {
           
           if (docSnap.exists()) {
             const data = docSnap.data();
+            // CORREÇÃO: Garante que os dados da nuvem usem o fuso horário correto se não tiverem data
+            const today = getLocalDateISO();
+            
             if (data.projects) setProjects(data.projects);
-            if (data.razonetes) setRazonetes(data.razonetes);
+            if (data.razonetes) {
+                // Aplica a mesma lógica de migração para dados da nuvem que possam estar sem data
+                const migratedCloudData = data.razonetes.map(r => ({
+                    ...r,
+                    entries: r.entries.map(e => ({
+                        ...e,
+                        date: e.date || today // Se vier da nuvem sem data, assume hoje (Local)
+                    }))
+                }));
+                setRazonetes(migratedCloudData);
+            }
           } else {
             // Primeiro login: Salva o estado local na nuvem
             await setDoc(userDocRef, {
@@ -710,7 +735,8 @@ const App = () => {
       const savedRazonetes = localStorage.getItem('razonetes_react_v1');
       if (savedRazonetes) {
         let parsedData = JSON.parse(savedRazonetes);
-        const today = new Date().toISOString().split('T')[0];
+        // CORREÇÃO: Usar data local para migração de dados locais
+        const today = getLocalDateISO(); 
         let hasChanges = false;
         const migratedData = parsedData.map(r => {
           let updatedR = { ...r };
@@ -724,10 +750,11 @@ const App = () => {
         setRazonetes(migratedData);
         if (hasChanges) localStorage.setItem('razonetes_react_v1', JSON.stringify(migratedData));
       } else {
-        // Dados Demo
+        // Dados Demo com Data Local
+        const today = getLocalDateISO();
         setRazonetes([
-          { id: 'demo-1', projectId: 'default', title: 'Caixa (Ativo)', entries: [{ id: 'e1', type: 'DEBIT', value: 1000, ref: 'Cap. Social', date: new Date().toISOString().split('T')[0] }, { id: 'e2', type: 'CREDIT', value: 200, ref: 'Mat. Escrit.', date: new Date().toISOString().split('T')[0] }], comment: 'Disponibilidade imediata.', archived: false },
-          { id: 'demo-2', projectId: 'default', title: 'Capital Social (PL)', entries: [{ id: 'e3', type: 'CREDIT', value: 1000, ref: 'Integralização', date: new Date().toISOString().split('T')[0] }], comment: 'Capital dos sócios.', archived: false }
+          { id: 'demo-1', projectId: 'default', title: 'Caixa (Ativo)', entries: [{ id: 'e1', type: 'DEBIT', value: 1000, ref: 'Cap. Social', date: today }, { id: 'e2', type: 'CREDIT', value: 200, ref: 'Mat. Escrit.', date: today }], comment: 'Disponibilidade imediata.', archived: false },
+          { id: 'demo-2', projectId: 'default', title: 'Capital Social (PL)', entries: [{ id: 'e3', type: 'CREDIT', value: 1000, ref: 'Integralização', date: today }], comment: 'Capital dos sócios.', archived: false }
         ]);
       }
     }
@@ -884,74 +911,72 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800 pb-20">
-      {/* HEADER PRINCIPAL OTIMIZADO */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
-        <div className="max-w-[1800px] mx-auto px-4 sm:px-6 py-3 flex flex-col lg:flex-row justify-between items-center gap-y-4 gap-x-6">
-          
-          {/* SEÇÃO ESQUERDA: LOGO + PROJETO (EM LINHA EM TELAS MAIORES) */}
-          <div className="w-full lg:w-auto flex justify-between lg:justify-start items-center gap-4">
+        <div className="max-w-[1800px] mx-auto px-4 sm:px-6 py-4 flex flex-col xl:flex-row justify-between items-center gap-4">
+          <div className="flex flex-col md:flex-row items-center gap-4 w-full xl:w-auto">
             <div className="flex items-center gap-3">
               <div className={`text-white p-2 rounded-lg shadow-lg transition-colors ${showArchived ? 'bg-slate-600 shadow-slate-200' : 'bg-blue-600 shadow-blue-200'}`}>
                 {showArchived ? <Archive size={24} /> : <Scale size={24} weight="bold" />}
               </div>
-              <div className="flex flex-col">
-                <h1 className="text-lg font-bold text-slate-900 leading-none">
-                  {t.appTitle}
+              <div>
+                <h1 className="text-xl font-bold text-slate-900 leading-none">
+                  {t.appTitle} {showArchived && <span className="text-slate-400 text-sm font-normal">({t.archivedView})</span>}
                 </h1>
-                <span className="text-[10px] text-slate-400 mt-0.5">{t.appSubtitle}</span>
+                <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                  {t.appSubtitle}
+                  {/* Indicador de Status da Nuvem */}
+                  {user ? (
+                    saveError ? (
+                      <span className="ml-2 flex items-center gap-1 text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full border border-red-200" title={t.cloudError}>
+                        <CloudOff size={10} /> {t.cloudError}
+                      </span>
+                    ) : (
+                      <span className={`ml-2 flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border ${isSyncing ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-green-100 text-green-700 border-green-200'}`}>
+                        <Cloud size={10} /> {isSyncing ? t.syncing : t.cloudStorage}
+                      </span>
+                    )
+                  ) : (
+                    <span className="ml-2 flex items-center gap-1 text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full border border-slate-200">
+                      <CloudOff size={10} /> {t.localStorage}
+                    </span>
+                  )}
+                </p>
               </div>
             </div>
-            
-            {/* Divisor Vertical apenas Desktop */}
-            <div className="hidden lg:block h-8 w-px bg-slate-200 mx-2"></div>
-
+            <div className="hidden md:block h-8 w-px bg-slate-200 mx-2"></div>
             <ProjectManager projects={projects} currentProjectId={currentProjectId} onChangeProject={setCurrentProjectId} onCreateProject={handleCreateProject} onDeleteProject={handleDeleteProjectRequest} t={t} />
           </div>
 
-          {/* SEÇÃO CENTRAL (STATUS) */}
-          <div className="w-full lg:w-auto flex justify-center">
-            <div className={`px-4 py-1.5 rounded-full flex items-center gap-2 text-xs font-bold shadow-sm transition-colors border ${globalStatus.isBalanced ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
-              {globalStatus.isBalanced ? (
-                <><CheckCircle size={14} /><span>{t.doubleEntryOk}</span></>
-              ) : (
-                <><AlertTriangle size={14} /><span>{t.discrepancy}: {formatCurrency(globalStatus.diff, currentLang)}</span></>
-              )}
-              {/* Indicador de Nuvem Integrado */}
-              <div className="h-4 w-px bg-current opacity-30 mx-1"></div>
-               {user ? (
-                 <span className="flex items-center gap-1 opacity-80" title={saveError ? t.cloudError : t.cloudStorage}>
-                   {saveError ? <CloudOff size={12} /> : <Cloud size={12} />}
-                 </span>
-               ) : (
-                 <span className="flex items-center gap-1 opacity-50" title={t.localStorage}><CloudOff size={12} /></span>
-               )}
-            </div>
+          <div className={`px-4 py-2 rounded-full flex items-center gap-2 text-sm font-bold shadow-sm transition-colors ${globalStatus.isBalanced ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+            {globalStatus.isBalanced ? (
+              <><CheckCircle size={18} /><span>{t.doubleEntryOk}</span></>
+            ) : (
+              <><AlertTriangle size={18} /><span>{t.discrepancy}: {formatCurrency(globalStatus.diff, currentLang)}</span></>
+            )}
+            <span className="ml-1 text-xs opacity-60 font-normal border-l border-current pl-2">
+              {projects.find(p => p.id === currentProjectId)?.name}
+            </span>
           </div>
 
-          {/* SEÇÃO DIREITA (AÇÕES) */}
-          <div className="w-full lg:w-auto flex justify-end items-center gap-2">
-            
-            {/* Botão Doação (Compacto) */}
-            <button onClick={() => setIsDonationOpen(true)} className="flex items-center gap-2 px-3 py-2 bg-amber-100 text-amber-700 text-sm font-bold rounded-lg hover:bg-amber-200 transition border border-amber-200" title={t.supportProject}>
-              <Coffee size={18} /> 
-              <span className="hidden xl:inline">{t.supportProject}</span>
+          <div className="flex gap-2 items-center flex-wrap justify-end">
+            <button onClick={() => setIsDonationOpen(true)} className="flex items-center gap-2 px-3 py-2 bg-amber-100 text-amber-700 text-sm font-semibold rounded-lg hover:bg-amber-200 transition shadow-sm border border-amber-200">
+              <Coffee size={16} /> 
+              <span className="hidden sm:inline">{t.supportProject}</span>
             </button>
 
-            {/* Toggle Arquivo */}
-            <button onClick={() => setShowArchived(!showArchived)} className={`p-2 rounded-lg transition border ${showArchived ? 'bg-slate-800 text-white border-slate-900' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'}`} title={t.showArchived}>
-              {showArchived ? <Scale size={20} /> : <Archive size={20} />} 
+            <button onClick={() => setShowArchived(!showArchived)} className={`flex items-center gap-2 px-3 py-2 text-sm font-semibold rounded-lg transition shadow-sm active:scale-95 ${showArchived ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-50'}`}>
+              {showArchived ? <Scale size={16} /> : <Archive size={16} />} 
+              {showArchived ? t.showActive : t.showArchived}
             </button>
 
-            {/* Ações Principais */}
-            <button onClick={addRazonete} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 transition shadow-sm active:scale-95">
-              <Plus size={18} /> <span className="hidden sm:inline">{t.newAccount}</span>
+            <button onClick={addRazonete} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition shadow-sm active:scale-95 shadow-blue-600/20">
+              <Plus size={16} /> <span className="hidden sm:inline">{t.newAccount}</span>
             </button>
             
-            <button onClick={() => setIsTrialBalanceOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white text-sm font-bold rounded-lg hover:bg-slate-900 transition shadow-sm active:scale-95">
-              <ClipboardList size={18} /> <span className="hidden sm:inline">{t.trialBalance}</span>
+            <button onClick={() => setIsTrialBalanceOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white text-sm font-semibold rounded-lg hover:bg-slate-900 transition shadow-sm active:scale-95">
+              <ClipboardList size={16} /> <span className="hidden sm:inline">{t.trialBalance}</span>
             </button>
 
-            {/* Perfil & Menu */}
             <div className="h-8 w-px bg-slate-200 mx-1 hidden sm:block"></div>
             
             <AuthHeader user={user} onLogin={handleLogin} onLogout={handleLogout} t={t} />

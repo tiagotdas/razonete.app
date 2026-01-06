@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { initializeApp } from "firebase/app";
 import { 
   getAuth, 
@@ -41,7 +41,8 @@ import {
   LogOut,
   Cloud,
   CloudOff,
-  User
+  User,
+  Book // Novo ícone para representar "Livro"
 } from 'lucide-react';
 
 // --- CONFIGURAÇÃO DO FIREBASE (MODO DIRETO PARA WEB) ---
@@ -68,23 +69,21 @@ if (firebaseConfig.apiKey) {
 }
 
 // --- UTILITÁRIO DE DATA (TIMEZONE FIX) ---
-// Função crítica para garantir que a data seja a do utilizador (Brasil), e não UTC (Londres)
 const getLocalDateISO = () => {
   const date = new Date();
-  // Subtrai o offset do fuso horário para garantir a data local correta
   return new Date(date.getTime() - (date.getTimezoneOffset() * 60000))
     .toISOString()
     .split('T')[0];
 };
 
-// --- TELEMETRIA: Google Analytics 4 Helper ---
+// --- TELEMETRIA ---
 const sendGAEvent = (eventName, params = {}) => {
   if (typeof window !== 'undefined' && window.gtag) {
     window.gtag('event', eventName, params);
   }
 };
 
-// --- Dicionário de Traduções (I18n) ---
+// --- TRADUÇÕES (Atualizado para "Livro") ---
 const TRANSLATIONS = {
   pt: {
     debit: 'Débito',
@@ -110,7 +109,7 @@ const TRANSLATIONS = {
     emptyArchived: 'Nenhum razonete arquivado',
     startAdding: 'Comece adicionando o seu primeiro razonete.',
     confirmation: 'Confirmação',
-    confirmDeleteAll: 'Tem certeza que deseja apagar todos os razonetes visíveis deste projeto? Todo o trabalho será perdido.',
+    confirmDeleteAll: 'Tem certeza que deseja apagar todos os razonetes visíveis deste Livro? Todo o trabalho será perdido.',
     confirmDeleteOne: 'Tem certeza que deseja excluir este razonete permanentemente?',
     cancel: 'Cancelar',
     deleteAll: 'Apagar Tudo',
@@ -152,13 +151,13 @@ const TRANSLATIONS = {
     copy: 'Copiar',
     copied: 'Copiado!',
     bankName: 'Banco: Nubank (Nu Pagamentos)',
-    projects: 'Cenários',
-    newProject: 'Novo Projeto',
-    projectNamePlaceholder: 'Nome do Cliente ou Cenário',
+    projects: 'Livros / Empresas', // Alterado
+    newProject: 'Novo Livro',      // Alterado
+    projectNamePlaceholder: 'Nome da Empresa ou Livro', // Alterado
     create: 'Criar',
-    deleteProject: 'Excluir Projeto',
-    confirmDeleteProject: 'Tem certeza? Isso apagará o projeto e todos os razonetes dentro dele.',
-    defaultProject: 'Geral (Principal)',
+    deleteProject: 'Excluir Livro', // Alterado
+    confirmDeleteProject: 'Tem certeza? Isso apagará este Livro e todos os razonetes dentro dele.',
+    defaultProject: 'Livro Geral', // Alterado
     inProject: 'em',
     moreOptions: 'Mais Opções',
     language: 'Idioma',
@@ -167,10 +166,11 @@ const TRANSLATIONS = {
     syncing: 'A salvar...',
     cloudStorage: 'Nuvem',
     cloudError: 'Erro (Offline)',
-    localStorage: 'Local'
+    localStorage: 'Local',
+    welcome: 'Olá'
   },
   en: {
-    debit: 'Debit', credit: 'Credit', balance: 'Balance', debitBalance: 'Debit Balance', creditBalance: 'Credit Balance', accountName: 'Account Name', addEntry: 'Add', ref: 'Ref.', notes: 'Explanatory notes...', deleteAccount: 'Delete Account', deleteEntry: 'Delete Entry', appTitle: 'T-Account Pro', appSubtitle: 'The famous T-chart', doubleEntryOk: 'Double Entry: OK', discrepancy: 'Discrepancy', newAccount: 'New Account', trialBalance: 'Trial Balance', export: 'Export CSV', clearAll: 'Clear All', emptyWorkspace: 'Empty workspace', emptyArchived: 'No archived accounts', startAdding: 'Start by adding your first T-account.', confirmation: 'Confirmation', confirmDeleteAll: 'Are you sure you want to delete all visible accounts? All work will be lost.', confirmDeleteOne: 'Are you sure you want to delete this account permanently?', cancel: 'Cancel', deleteAll: 'Delete All', delete: 'Delete', trialBalanceTitle: 'Trial Balance', trialBalanceSubtitle: 'Account balance summary (Visible)', tableAccounts: 'Accounts', tableDebit: 'Debit Balance', tableCredit: 'Credit Balance', totals: 'TOTALS', balanced: 'Balanced', balancedMsg: 'The double-entry method was respected.', unbalanced: 'Discrepancy Found', unbalancedMsg: 'There is a difference of {diff} between debits and credits.', close: 'Close', nature: 'Nature', type: 'Type', value: 'Value', debtor: 'Debit', creditor: 'Credit', archive: 'Archive', unarchive: 'Unarchive', showArchived: 'Show Archived', showActive: 'Show Active', archivedView: 'Archive Mode', exportExcel: 'Export to Excel', developedBy: 'Developed by', role: 'Contador & Data Scientist', date: 'Date', period: 'Period', startDate: 'Start Date', endDate: 'End Date', filter: 'Filter',
+    debit: 'Debit', credit: 'Credit', balance: 'Balance', debitBalance: 'Debit Balance', creditBalance: 'Credit Balance', accountName: 'Account Name', addEntry: 'Add', ref: 'Ref.', notes: 'Explanatory notes...', deleteAccount: 'Delete Account', deleteEntry: 'Delete Entry', appTitle: 'T-Account Pro', appSubtitle: 'The famous T-chart', doubleEntryOk: 'Double Entry: OK', discrepancy: 'Discrepancy', newAccount: 'New Account', trialBalance: 'Trial Balance', export: 'Export CSV', clearAll: 'Clear All', emptyWorkspace: 'Empty workspace', emptyArchived: 'No archived accounts', startAdding: 'Start by adding your first T-account.', confirmation: 'Confirmation', confirmDeleteAll: 'Are you sure you want to delete all visible accounts? All work will be lost.', confirmDeleteOne: 'Are you sure you want to delete this account permanently?', cancel: 'Cancel', deleteAll: 'Delete All', delete: 'Delete', trialBalanceTitle: 'Trial Balance', trialBalanceSubtitle: 'Account balance summary (Visible)', tableAccounts: 'Accounts', tableDebit: 'Debit Balance', tableCredit: 'Credit Balance', totals: 'TOTALS', balanced: 'Balanced', balancedMsg: 'The double-entry method was respected.', unbalanced: 'Discrepancy Found', unbalancedMsg: 'There is a difference of {diff} between debits and credits.', close: 'Close', nature: 'Nature', type: 'Type', value: 'Value', debtor: 'Debit', creditor: 'Credit', archive: 'Archive', unarchive: 'Unarchive', showArchived: 'Show Archived', showActive: 'Show Active', archivedView: 'Archive Mode', exportExcel: 'Export to Excel', developedBy: 'Developed by', role: 'Accountant & Data Scientist', date: 'Date', period: 'Period', startDate: 'Start Date', endDate: 'End Date', filter: 'Filter',
     supportProject: 'Support',
     supportTitle: 'Support Razonete Pro',
     supportDesc: 'This tool is free. If it helps you, consider donating.',
@@ -179,13 +179,13 @@ const TRANSLATIONS = {
     copy: 'Copy',
     copied: 'Copied!',
     bankName: 'Bank: Nubank',
-    projects: 'Scenarios',
-    newProject: 'New Project',
-    projectNamePlaceholder: 'Client Name or Scenario',
+    projects: 'Books / Clients', // Alterado
+    newProject: 'New Book',      // Alterado
+    projectNamePlaceholder: 'Client Name or Book',
     create: 'Create',
-    deleteProject: 'Delete Project',
-    confirmDeleteProject: 'Are you sure? This will delete the project and all accounts within it.',
-    defaultProject: 'General (Main)',
+    deleteProject: 'Delete Book',
+    confirmDeleteProject: 'Are you sure? This will delete the Book and all accounts within it.',
+    defaultProject: 'General Ledger', // Alterado
     inProject: 'in',
     moreOptions: 'More Options',
     language: 'Language',
@@ -194,7 +194,8 @@ const TRANSLATIONS = {
     syncing: 'Saving...',
     cloudStorage: 'Cloud',
     cloudError: 'Error (Offline)',
-    localStorage: 'Local'
+    localStorage: 'Local',
+    welcome: 'Hi'
   },
   es: {
     debit: 'Débito', credit: 'Crédito', balance: 'Saldo', debitBalance: 'Saldo Deudor', creditBalance: 'Saldo Acreedor', accountName: 'Nombre de la Cuenta', addEntry: 'Agregar', ref: 'Ref.', notes: 'Notas explicativas...', deleteAccount: 'Eliminar Cuenta', deleteEntry: 'Eliminar entrada', appTitle: 'Razonete Pro', appSubtitle: 'El famoso gráfico en T', doubleEntryOk: 'Partida Doble: OK', discrepancy: 'Discrepancia', newAccount: 'Nueva Cuenta', trialBalance: 'Balance', export: 'Exportar CSV', clearAll: 'Borrar Todo', emptyWorkspace: 'Espacio de trabajo vacío', emptyArchived: 'No hay cuentas archivadas', startAdding: 'Comience agregando su primera cuenta T.', confirmation: 'Confirmación', confirmDeleteAll: '¿Está seguro de que desea eliminar todas las cuentas visibles? Todo el trabajo se perderá.', confirmDeleteOne: '¿Está seguro de que desea eliminar esta cuenta permanentemente?', cancel: 'Cancelar', deleteAll: 'Borrar Todo', delete: 'Eliminar', trialBalanceTitle: 'Balance de Comprobación', trialBalanceSubtitle: 'Resumen de saldos por cuenta (Visibles)', tableAccounts: 'Cuentas', tableDebit: 'Saldo Deudor', tableCredit: 'Saldo Acreedor', totals: 'TOTALES', balanced: 'Balance Cuadrado', balancedMsg: 'Se respetó el método de partida doble.', unbalanced: 'Discrepancia Encontrada', unbalancedMsg: 'Hay una diferencia de {diff} entre débitos y créditos.', close: 'Cerrar', nature: 'Naturaleza', type: 'Tipo', value: 'Valor', debtor: 'Deudora', creditor: 'Acreedora', archive: 'Archivar', unarchive: 'Desarchivar', showArchived: 'Ver Archivados', showActive: 'Ver Activos', archivedView: 'Modo Archivo', exportExcel: 'Exportar a Excel', developedBy: 'Desarrollado por', role: 'Contador & Científico de Datos', date: 'Fecha', period: 'Período', startDate: 'Fecha Inicio', endDate: 'Fecha Fin', filter: 'Filtrar',
@@ -206,13 +207,13 @@ const TRANSLATIONS = {
     copy: 'Copiar',
     copied: '¡Copiado!',
     bankName: 'Banco: Nubank',
-    projects: 'Escenarios',
-    newProject: 'Nuevo Proyecto',
-    projectNamePlaceholder: 'Nombre del Cliente o Escenario',
+    projects: 'Libros / Clientes', // Alterado
+    newProject: 'Nuevo Libro',     // Alterado
+    projectNamePlaceholder: 'Nombre del Cliente o Libro',
     create: 'Crear',
-    deleteProject: 'Eliminar Proyecto',
-    confirmDeleteProject: '¿Seguro? Esto eliminará el proyecto y todas sus cuentas.',
-    defaultProject: 'General (Principal)',
+    deleteProject: 'Eliminar Libro',
+    confirmDeleteProject: '¿Seguro? Esto eliminará el Libro y todas sus cuentas.',
+    defaultProject: 'Libro General', // Alterado
     inProject: 'en',
     moreOptions: 'Más Opciones',
     language: 'Idioma',
@@ -221,7 +222,8 @@ const TRANSLATIONS = {
     syncing: 'Guardando...',
     cloudStorage: 'Nube',
     cloudError: 'Error (Offline)',
-    localStorage: 'Local'
+    localStorage: 'Local',
+    welcome: 'Hola'
   }
 };
 
@@ -297,7 +299,6 @@ const TAccountVisual = ({ entries, onDeleteEntry, lang, t }) => {
 };
 
 const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t }) => {
-  // CORREÇÃO: Usar data local para inicialização
   const today = getLocalDateISO();
   const [inputs, setInputs] = useState({ debit: '', credit: '', ref: '', date: today });
 
@@ -327,7 +328,6 @@ const RazoneteCard = ({ data, onUpdate, onDeleteRequest, onArchive, lang, t }) =
 
     if (added) {
       onUpdate({ ...data, entries: newEntries });
-      // Mantém a data do input anterior para agilidade, mas garante que não mude o fuso
       setInputs({ debit: '', credit: '', ref: '', date: inputs.date }); 
       document.getElementById(`debit-${data.id}`)?.focus();
     }
@@ -554,7 +554,7 @@ const ProjectManager = ({ projects, currentProjectId, onChangeProject, onCreateP
     <div className="relative w-full lg:w-auto">
       <button onClick={() => setIsOpen(!isOpen)} className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition shadow-sm w-full md:w-auto justify-between min-w-[200px]">
         <div className="flex items-center gap-2 truncate">
-          <Folder size={18} className="text-blue-600" />
+          <Book size={18} className="text-blue-600" />
           <div className="flex flex-col items-start leading-none">
             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{t.projects}</span>
             <span className="font-semibold text-slate-700 truncate max-w-[150px]">{currentProject?.name}</span>
@@ -621,32 +621,49 @@ const MoreOptionsMenu = ({ onExport, onClear, onChangeLang, currentLang, t }) =>
   );
 };
 
-// --- AUTH HEADER COMPONENT ---
+// --- AUTH HEADER COMPONENT OTIMIZADO (Click em vez de Hover) ---
 const AuthHeader = ({ user, onLogin, onLogout, t }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
   if (user) {
     return (
-      <div className="flex items-center gap-3 bg-white border border-slate-200 rounded-lg px-3 py-1.5 shadow-sm hover:bg-slate-50 transition cursor-pointer group relative">
-         {user.photoURL ? (
-            <img src={user.photoURL} alt="User" className="w-8 h-8 rounded-full border border-slate-200" />
-          ) : (
-            <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
-              <User size={16} />
+      <div className="relative">
+        <div 
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex items-center gap-3 bg-white border border-slate-200 rounded-lg px-3 py-1.5 shadow-sm hover:bg-slate-50 transition cursor-pointer select-none"
+        >
+           {user.photoURL ? (
+              <img src={user.photoURL} alt="User" className="w-8 h-8 rounded-full border border-slate-200" />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
+                <User size={16} />
+              </div>
+            )}
+            <div className="hidden sm:flex flex-col overflow-hidden max-w-[100px]">
+              <span className="text-xs font-bold text-slate-700 truncate">{user.displayName?.split(' ')[0]}</span>
+              <span className="text-[9px] text-slate-500 truncate">Online</span>
             </div>
-          )}
-          <div className="hidden sm:flex flex-col overflow-hidden max-w-[100px]">
-            <span className="text-xs font-bold text-slate-700 truncate">{user.displayName?.split(' ')[0]}</span>
-            <span className="text-[9px] text-slate-500 truncate">Online</span>
-          </div>
+            <ChevronDown size={14} className={`text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        </div>
 
-          {/* Logout Dropdown on Hover/Click */}
-          <div className="absolute right-0 top-full mt-2 w-32 bg-white rounded-lg shadow-xl border border-slate-200 py-1 hidden group-hover:block z-50 animate-in fade-in zoom-in-95">
-             <button 
-                onClick={onLogout} 
-                className="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2"
-             >
-                <LogOut size={12} /> {t.logout}
-             </button>
-          </div>
+        {/* Dropdown Menu (Agora controlado por Click) */}
+        {isOpen && (
+          <>
+            <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)}></div>
+            <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-xl border border-slate-200 py-1 z-50 animate-in fade-in zoom-in-95">
+               <div className="px-4 py-2 border-b border-slate-100 mb-1">
+                 <p className="text-xs font-bold text-slate-700 truncate">{user.displayName}</p>
+                 <p className="text-[10px] text-slate-500 truncate">{user.email}</p>
+               </div>
+               <button 
+                  onClick={() => { onLogout(); setIsOpen(false); }} 
+                  className="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2"
+               >
+                  <LogOut size={14} /> {t.logout}
+               </button>
+            </div>
+          </>
+        )}
       </div>
     );
   }
@@ -690,17 +707,15 @@ const App = () => {
           
           if (docSnap.exists()) {
             const data = docSnap.data();
-            // CORREÇÃO: Garante que os dados da nuvem usem o fuso horário correto se não tiverem data
             const today = getLocalDateISO();
             
             if (data.projects) setProjects(data.projects);
             if (data.razonetes) {
-                // Aplica a mesma lógica de migração para dados da nuvem que possam estar sem data
                 const migratedCloudData = data.razonetes.map(r => ({
                     ...r,
                     entries: r.entries.map(e => ({
                         ...e,
-                        date: e.date || today // Se vier da nuvem sem data, assume hoje (Local)
+                        date: e.date || today
                     }))
                 }));
                 setRazonetes(migratedCloudData);
@@ -722,12 +737,10 @@ const App = () => {
       }
     });
     return () => unsubscribe();
-  }, []); // Executa uma vez no mount para configurar o listener
+  }, []);
 
-  // Load Inicial (Local Storage) - Só roda se NÃO estiver logado ou antes do auth
+  // Load Inicial (Local Storage)
   useEffect(() => {
-    // Se estiver logado, o onAuthStateChanged cuida dos dados.
-    // Se não, carregamos do localStorage.
     if (!user) {
       const savedProjects = localStorage.getItem('razonetes_projects_v1');
       if (savedProjects) setProjects(JSON.parse(savedProjects));
@@ -735,7 +748,6 @@ const App = () => {
       const savedRazonetes = localStorage.getItem('razonetes_react_v1');
       if (savedRazonetes) {
         let parsedData = JSON.parse(savedRazonetes);
-        // CORREÇÃO: Usar data local para migração de dados locais
         const today = getLocalDateISO(); 
         let hasChanges = false;
         const migratedData = parsedData.map(r => {
@@ -762,32 +774,29 @@ const App = () => {
 
   // Persistência Unificada (Local + Cloud)
   useEffect(() => {
-    // 1. Sempre salva localmente (Backup/Offline)
     localStorage.setItem('razonetes_react_v1', JSON.stringify(razonetes));
     localStorage.setItem('razonetes_projects_v1', JSON.stringify(projects));
 
-    // 2. Se logado, salva na nuvem (Debounce simples para evitar muitas escritas)
     if (user && db) {
       const saveToCloud = async () => {
-        setIsSyncing(true); // Indica que começou a salvar
+        setIsSyncing(true);
         try {
           await setDoc(doc(db, "users", user.uid), {
             projects,
             razonetes,
             lastUpdate: new Date().toISOString(),
-            email: user.email // Útil para contato se permitido
+            email: user.email
           }, { merge: true });
-          setSaveError(false); // Sucesso
+          setSaveError(false);
         } catch (e) {
           console.error("Erro ao salvar na nuvem", e);
-          setSaveError(true); // Ativa o alerta vermelho
+          setSaveError(true);
         } finally {
-           // Pequeno delay para mostrar o ícone de salvamento
            setTimeout(() => setIsSyncing(false), 500);
         }
       };
       
-      const timeoutId = setTimeout(saveToCloud, 2000); // Espera 2s após última mudança
+      const timeoutId = setTimeout(saveToCloud, 2000); 
       return () => clearTimeout(timeoutId);
     }
   }, [razonetes, projects, user]);
@@ -808,9 +817,6 @@ const App = () => {
     if (!auth) return;
     try {
       await signOut(auth);
-      // Limpa estado ou recarrega do local?
-      // O useEffect do LocalStorage vai rodar quando user for null? Não automaticamente pois user é dependência.
-      // Melhor recarregar a página para garantir estado limpo do local storage
       window.location.reload(); 
     } catch (error) {
       console.error("Logout failed", error);
@@ -911,74 +917,77 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800 pb-20">
+      {/* HEADER PRINCIPAL OTIMIZADO (NOVA UI) */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
-        <div className="max-w-[1800px] mx-auto px-4 sm:px-6 py-4 flex flex-col xl:flex-row justify-between items-center gap-4">
-          <div className="flex flex-col md:flex-row items-center gap-4 w-full xl:w-auto">
+        <div className="max-w-[1800px] mx-auto px-4 sm:px-6 py-3 flex flex-col lg:flex-row justify-between items-center gap-y-4 gap-x-6">
+          
+          {/* SEÇÃO ESQUERDA: LOGO + LIVRO */}
+          <div className="w-full lg:w-auto flex justify-between lg:justify-start items-center gap-4">
             <div className="flex items-center gap-3">
               <div className={`text-white p-2 rounded-lg shadow-lg transition-colors ${showArchived ? 'bg-slate-600 shadow-slate-200' : 'bg-blue-600 shadow-blue-200'}`}>
                 {showArchived ? <Archive size={24} /> : <Scale size={24} weight="bold" />}
               </div>
-              <div>
-                <h1 className="text-xl font-bold text-slate-900 leading-none">
-                  {t.appTitle} {showArchived && <span className="text-slate-400 text-sm font-normal">({t.archivedView})</span>}
+              <div className="flex flex-col">
+                <h1 className="text-lg font-bold text-slate-900 leading-none">
+                  {t.appTitle}
                 </h1>
-                <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                  {t.appSubtitle}
-                  {/* Indicador de Status da Nuvem */}
-                  {user ? (
-                    saveError ? (
-                      <span className="ml-2 flex items-center gap-1 text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full border border-red-200" title={t.cloudError}>
-                        <CloudOff size={10} /> {t.cloudError}
-                      </span>
-                    ) : (
-                      <span className={`ml-2 flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border ${isSyncing ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-green-100 text-green-700 border-green-200'}`}>
-                        <Cloud size={10} /> {isSyncing ? t.syncing : t.cloudStorage}
-                      </span>
-                    )
-                  ) : (
-                    <span className="ml-2 flex items-center gap-1 text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full border border-slate-200">
-                      <CloudOff size={10} /> {t.localStorage}
-                    </span>
-                  )}
-                </p>
+                <span className="text-[10px] text-slate-400 mt-0.5">{t.appSubtitle}</span>
               </div>
             </div>
-            <div className="hidden md:block h-8 w-px bg-slate-200 mx-2"></div>
+            
+            <div className="hidden lg:block h-8 w-px bg-slate-200 mx-2"></div>
+
             <ProjectManager projects={projects} currentProjectId={currentProjectId} onChangeProject={setCurrentProjectId} onCreateProject={handleCreateProject} onDeleteProject={handleDeleteProjectRequest} t={t} />
           </div>
 
-          <div className={`px-4 py-2 rounded-full flex items-center gap-2 text-sm font-bold shadow-sm transition-colors ${globalStatus.isBalanced ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
-            {globalStatus.isBalanced ? (
-              <><CheckCircle size={18} /><span>{t.doubleEntryOk}</span></>
-            ) : (
-              <><AlertTriangle size={18} /><span>{t.discrepancy}: {formatCurrency(globalStatus.diff, currentLang)}</span></>
-            )}
-            <span className="ml-1 text-xs opacity-60 font-normal border-l border-current pl-2">
-              {projects.find(p => p.id === currentProjectId)?.name}
-            </span>
+          {/* SEÇÃO CENTRAL (STATUS + NUVEM) */}
+          <div className="w-full lg:w-auto flex justify-center">
+            <div className={`px-4 py-1.5 rounded-full flex items-center gap-2 text-xs font-bold shadow-sm transition-colors border ${globalStatus.isBalanced ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
+              {globalStatus.isBalanced ? (
+                <><CheckCircle size={14} /><span>{t.doubleEntryOk}</span></>
+              ) : (
+                <><AlertTriangle size={14} /><span>{t.discrepancy}: {formatCurrency(globalStatus.diff, currentLang)}</span></>
+              )}
+              {/* Divisor Status / Nuvem */}
+              <div className="h-4 w-px bg-current opacity-30 mx-1"></div>
+               {user ? (
+                 <span className="flex items-center gap-1 opacity-80" title={saveError ? t.cloudError : t.cloudStorage}>
+                   {saveError ? <CloudOff size={12} className="text-red-600" /> : <Cloud size={12} />}
+                   {isSyncing && <span className="hidden sm:inline font-normal opacity-70">...</span>}
+                 </span>
+               ) : (
+                 <span className="flex items-center gap-1 opacity-50" title={t.localStorage}><CloudOff size={12} /></span>
+               )}
+            </div>
           </div>
 
-          <div className="flex gap-2 items-center flex-wrap justify-end">
-            <button onClick={() => setIsDonationOpen(true)} className="flex items-center gap-2 px-3 py-2 bg-amber-100 text-amber-700 text-sm font-semibold rounded-lg hover:bg-amber-200 transition shadow-sm border border-amber-200">
-              <Coffee size={16} /> 
-              <span className="hidden sm:inline">{t.supportProject}</span>
-            </button>
-
-            <button onClick={() => setShowArchived(!showArchived)} className={`flex items-center gap-2 px-3 py-2 text-sm font-semibold rounded-lg transition shadow-sm active:scale-95 ${showArchived ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-50'}`}>
-              {showArchived ? <Scale size={16} /> : <Archive size={16} />} 
-              {showArchived ? t.showActive : t.showArchived}
-            </button>
-
-            <button onClick={addRazonete} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition shadow-sm active:scale-95 shadow-blue-600/20">
-              <Plus size={16} /> <span className="hidden sm:inline">{t.newAccount}</span>
-            </button>
+          {/* SEÇÃO DIREITA (AÇÕES) */}
+          <div className="w-full lg:w-auto flex justify-end items-center gap-2">
             
-            <button onClick={() => setIsTrialBalanceOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white text-sm font-semibold rounded-lg hover:bg-slate-900 transition shadow-sm active:scale-95">
-              <ClipboardList size={16} /> <span className="hidden sm:inline">{t.trialBalance}</span>
-            </button>
+            {/* Toolbar Principal */}
+            <div className="flex items-center gap-2 mr-2">
+              <button onClick={() => setIsDonationOpen(true)} className="flex items-center gap-2 px-3 py-2 bg-amber-100 text-amber-700 text-sm font-bold rounded-lg hover:bg-amber-200 transition border border-amber-200 shadow-sm" title={t.supportProject}>
+                <Coffee size={18} /> 
+                <span className="hidden xl:inline">{t.supportProject}</span>
+              </button>
 
+              <button onClick={() => setShowArchived(!showArchived)} className={`p-2 rounded-lg transition border shadow-sm ${showArchived ? 'bg-slate-800 text-white border-slate-900' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'}`} title={t.showArchived}>
+                {showArchived ? <Scale size={20} /> : <Archive size={20} />} 
+              </button>
+
+              <button onClick={addRazonete} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 transition shadow-sm active:scale-95">
+                <Plus size={18} /> <span className="hidden sm:inline">{t.newAccount}</span>
+              </button>
+              
+              <button onClick={() => setIsTrialBalanceOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white text-sm font-bold rounded-lg hover:bg-slate-900 transition shadow-sm active:scale-95">
+                <ClipboardList size={18} /> <span className="hidden sm:inline">{t.trialBalance}</span>
+              </button>
+            </div>
+
+            {/* Divisor */}
             <div className="h-8 w-px bg-slate-200 mx-1 hidden sm:block"></div>
             
+            {/* Auth e Menu Extra */}
             <AuthHeader user={user} onLogin={handleLogin} onLogout={handleLogout} t={t} />
 
             <MoreOptionsMenu 
@@ -997,7 +1006,7 @@ const App = () => {
           <div className="flex flex-col items-center justify-center py-32 opacity-50">
             {showArchived ? <Archive size={64} className="text-slate-300 mb-4" /> : <Scale size={64} className="text-slate-300 mb-4" />}
             <h3 className="text-xl font-medium text-slate-500">{showArchived ? t.emptyArchived : t.emptyWorkspace}</h3>
-            <p className="text-slate-400">{showArchived ? '' : t.startAdding}<br/><span className="text-xs opacity-70 mt-2 block">Projeto Atual: {projects.find(p => p.id === currentProjectId)?.name}</span></p>
+            <p className="text-slate-400">{showArchived ? '' : t.startAdding}<br/><span className="text-xs opacity-70 mt-2 block">{t.projects}: {projects.find(p => p.id === currentProjectId)?.name}</span></p>
           </div>
         ) : (
           <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-6 items-start">
